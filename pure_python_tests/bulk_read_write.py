@@ -101,7 +101,7 @@ PROTOCOL_VERSION            = 2.0
 
 # Make sure that each DYNAMIXEL ID should have unique ID.
 DXL1_ID                     = 1                 # Dynamixel#1 ID : 1
-DXL2_ID                     = 1                 # Dynamixel#1 ID : 2
+DXL2_ID                     = 2                 # Dynamixel#1 ID : 2
 
 # Use the actual port assigned to the U2D2.
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
@@ -172,13 +172,13 @@ else:
 # Add parameter storage for Dynamixel#1 present position
 dxl_addparam_result = groupBulkRead.addParam(DXL1_ID, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
 if dxl_addparam_result != True:
-    print("[ID:%03d] groupBulkRead addparam position failed" % DXL1_ID)
+    print("[ID:%03d] groupBulkRead addparam failed" % DXL1_ID)
     quit()
 
 # Add parameter storage for Dynamixel#2 LED value
 dxl_addparam_result = groupBulkRead.addParam(DXL2_ID, ADDR_LED_RED, LEN_LED_RED)
 if dxl_addparam_result != True:
-    print("[ID:%03d] groupBulkRead addparam LED failed" % DXL2_ID)
+    print("[ID:%03d] groupBulkRead addparam failed" % DXL2_ID)
     quit()
 
 while 1:
@@ -187,10 +187,7 @@ while 1:
         break
 
     # Allocate goal position value into byte array
-    param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[index])),
-                           DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[index])),
-                           DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[index])),
-                           DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[index]))]
+    param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[index])), DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[index])), DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[index])), DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[index]))]
 
     # Add Dynamixel#1 goal position value to the Bulkwrite parameter storage
     dxl_addparam_result = groupBulkWrite.addParam(DXL1_ID, ADDR_GOAL_POSITION, LEN_GOAL_POSITION, param_goal_position)

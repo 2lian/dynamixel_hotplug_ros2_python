@@ -101,7 +101,7 @@ PROTOCOL_VERSION            = 2.0
 
 # Make sure that each DYNAMIXEL ID should have unique ID.
 DXL1_ID                     = 1                 # Dynamixel#1 ID : 1
-DXL2_ID                     = 2                 # Dynamixel#1 ID : 2
+DXL2_ID                     = 1                 # Dynamixel#1 ID : 2
 
 # Use the actual port assigned to the U2D2.
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
@@ -170,10 +170,10 @@ else:
     print("Dynamixel#%d has been successfully connected" % DXL2_ID)
 
 # Add parameter storage for Dynamixel#1 present position
-dxl_addparam_result = groupBulkRead.addParam(DXL1_ID, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
-if dxl_addparam_result != True:
-    print("[ID:%03d] groupBulkRead addparam failed" % DXL1_ID)
-    quit()
+# dxl_addparam_result = groupBulkRead.addParam(DXL1_ID, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+# if dxl_addparam_result != True:
+#     print("[ID:%03d] groupBulkRead addparam failed" % DXL1_ID)
+#     quit()
 
 # Add parameter storage for Dynamixel#2 LED value
 dxl_addparam_result = groupBulkRead.addParam(DXL2_ID, ADDR_LED_RED, LEN_LED_RED)
@@ -190,10 +190,10 @@ while 1:
     param_goal_position = [DXL_LOBYTE(DXL_LOWORD(dxl_goal_position[index])), DXL_HIBYTE(DXL_LOWORD(dxl_goal_position[index])), DXL_LOBYTE(DXL_HIWORD(dxl_goal_position[index])), DXL_HIBYTE(DXL_HIWORD(dxl_goal_position[index]))]
 
     # Add Dynamixel#1 goal position value to the Bulkwrite parameter storage
-    dxl_addparam_result = groupBulkWrite.addParam(DXL1_ID, ADDR_GOAL_POSITION, LEN_GOAL_POSITION, param_goal_position)
-    if dxl_addparam_result != True:
-        print("[ID:%03d] groupBulkWrite addparam failed" % DXL1_ID)
-        quit()
+    # dxl_addparam_result = groupBulkWrite.addParam(DXL1_ID, ADDR_GOAL_POSITION, LEN_GOAL_POSITION, param_goal_position)
+    # if dxl_addparam_result != True:
+    #     print("[ID:%03d] groupBulkWrite addparam failed" % DXL1_ID)
+    #     quit()
 
     # Add Dynamixel#2 LED value to the Bulkwrite parameter storage
     dxl_addparam_result = groupBulkWrite.addParam(DXL2_ID, ADDR_LED_RED, LEN_LED_RED, [dxl_led_value[index]])
@@ -216,10 +216,10 @@ while 1:
             print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
 
         # Check if groupbulkread data of Dynamixel#1 is available
-        dxl_getdata_result = groupBulkRead.isAvailable(DXL1_ID, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
-        if dxl_getdata_result != True:
-            print("[ID:%03d] groupBulkRead getdata failed" % DXL1_ID)
-            quit()
+        # dxl_getdata_result = groupBulkRead.isAvailable(DXL1_ID, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+        # if dxl_getdata_result != True:
+        #     print("[ID:%03d] groupBulkRead getdata failed" % DXL1_ID)
+        #     quit()
 
         # Check if groupbulkread data of Dynamixel#2 is available
         dxl_getdata_result = groupBulkRead.isAvailable(DXL2_ID, ADDR_LED_RED, LEN_LED_RED)
@@ -228,15 +228,15 @@ while 1:
             quit()
 
         # Get present position value
-        dxl1_present_position = groupBulkRead.getData(DXL1_ID, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
+        # dxl1_present_position = groupBulkRead.getData(DXL1_ID, ADDR_PRESENT_POSITION, LEN_PRESENT_POSITION)
 
         # Get LED value
         dxl2_led_value_read = groupBulkRead.getData(DXL2_ID, ADDR_LED_RED, LEN_LED_RED)
 
-        print("[ID:%03d] Present Position : %d \t [ID:%03d] LED Value: %d" % (DXL1_ID, dxl1_present_position, DXL2_ID, dxl2_led_value_read))
-
-        if not (abs(dxl_goal_position[index] - dxl1_present_position) > DXL_MOVING_STATUS_THRESHOLD):
-            break
+        # print("[ID:%03d] Present Position : %d \t [ID:%03d] LED Value: %d" % (DXL1_ID, dxl1_present_position, DXL2_ID, dxl2_led_value_read))
+        #
+        # if not (abs(dxl_goal_position[index] - dxl1_present_position) > DXL_MOVING_STATUS_THRESHOLD):
+        break
 
     # Change goal position
     if index == 0:

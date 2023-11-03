@@ -48,7 +48,7 @@ motor_table = {
         "LEN_PRESENT_POSITION": 4,
         "DXL_MINIMUM_POSITION_VALUE": 0,
         "DXL_MAXIMUM_POSITION_VALUE": 4095,
-        "BAUDRATE": 57600,
+        "BAUDRATE": 57600,  # 57600
     }
     ,
     'MX_SERIES': {
@@ -352,7 +352,7 @@ while 1:
 
     print(f"\nretart\n\n{len(my_motor_list)}\n")
 
-    period = 2  # sec
+    period = 1  # sec
 
     start_time = time.time()
     now_time = start_time

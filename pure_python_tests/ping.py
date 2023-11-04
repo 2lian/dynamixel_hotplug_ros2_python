@@ -57,7 +57,8 @@ from dynamixel_sdk import *                 # Uses Dynamixel SDK library
 PROTOCOL_VERSION            = 2.0
 
 # Define the proper baudrate to search DYNAMIXELs. Note that XL320's baudrate is 1 M bps.
-BAUDRATE                = 57600
+# BAUDRATE                = 57600
+BAUDRATE                = 1000000
 
 # Factory default ID of all DYNAMIXEL is 1
 DXL_ID                      = 1

@@ -136,7 +136,7 @@ class MultiDynamixel(Node):
 
         self.search_timer = self.create_timer(0.5, self.search_for_motors, callback_group=grp1)
         self.delete_the_dead_timer = self.create_timer(2, self.delete_the_dead, callback_group=grp1)
-        self.move_dtime = 1
+        self.move_dtime = 0.1
         self.move_timer = self.create_timer(self.move_dtime, self.move, callback_group=grp2)
 
         self.last_id_checked = 0
@@ -161,7 +161,7 @@ class MultiDynamixel(Node):
 
     @error_catcher
     def move(self):
-        period = 10
+        period = 2
         x = (time.time() % period) / period * 2 * np.pi
         self.controller.broadcast_target_on_time(my_controller.wave(x), self.move_dtime+0.1)
 

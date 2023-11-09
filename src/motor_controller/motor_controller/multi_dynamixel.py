@@ -152,7 +152,7 @@ class MultiDynamixel(Node):
                 self.get_logger().info(f"Port {self.UsbPortNumber}: opened :)")
             else:
                 self.get_logger().warning(f"Port {self.UsbPortNumber}: failed to open", once=True)
-                time.sleep(1)
+            time.sleep(1)
 
         connected = False
         while not connected:
@@ -163,7 +163,7 @@ class MultiDynamixel(Node):
                 self.get_logger().info(f"Baudrate [{self.BAUDRATE}] set :)")
             else:
                 self.get_logger().warning("Failed to change the baudrate")
-                time.sleep(1)
+            time.sleep(1)
 
         self.controller = my_controller.MotorHandler(packetHandler=self.packetHandler,
                                                      portHandler=self.portHandler,
@@ -171,21 +171,25 @@ class MultiDynamixel(Node):
                                                      groupBulkWrite=self.groupBulkWrite,
                                                      deviceName=self.DEVICENAME,
                                                      motor_series="X_SERIES")
-        self.controller.refresh_motors()
-        while not self.controller.motor_list:
-            self.get_logger().warning(
-                f'''Port {self.UsbPortNumber}: no motors connected''', once=False)
-            if self.bypass_alive_check:
-                self.get_logger().warning(
-                    f'''Motor check bypassed :)''')
-                break
-            self.controller.refresh_motors()
-            time.sleep(0.5)
-        if not self.bypass_alive_check:
-            self.get_logger().warning(
-                f'''Port {self.UsbPortNumber}: total of {len(self.controller.motor_list)} motors connected :)''')
+        
+        for k in self.id_range:
+            self.search_for_motors()
 
-        self.controller.broadcast_max_speed(1)
+        # self.controller.refresh_motors()
+        # while not self.controller.motor_list:
+        #     self.get_logger().warning(
+        #         f'''Port {self.UsbPortNumber}: no motors connected''', once=False)
+        #     if self.bypass_alive_check:
+        #         self.get_logger().warning(
+        #             f'''Motor check bypassed :)''')
+        #         break
+        #     self.controller.refresh_motors()
+        #     time.sleep(1)
+        # if not self.bypass_alive_check:
+        #     self.get_logger().warning(
+        #         f'''Port {self.UsbPortNumber}: total of {len(self.controller.motor_list)} motors connected :)''')
+
+        # self.controller.broadcast_max_speed(1)
 
 
 def main(args=None, dotheinit=True):
@@ -213,17 +217,22 @@ def main(args=None, dotheinit=True):
             # node.portHandler.clearPort()
             # time.sleep(1)
             node.portHandler.closePort()
-            node.get_logger().info('Port closed, restarting in 3s')
-            time.sleep(3)  # if you don wait it crashes the jetson
+            node.get_logger().info('Port closed, restarting in 5s')
+            # break
+            time.sleep(5)  # if you don wait it crashes the jetson
+            node.get_logger().info('restarting')
             # main(dotheinit=False)
         except termios.error as e:
             node.get_logger().error('Termios error occurred')
             # node.portHandler.clearPort()
             # time.sleep(1)
             node.portHandler.closePort()
-            node.get_logger().info('Port closed, restarting in 3s')
-            time.sleep(3)  # if you don wait it crashes the jetson
+            node.get_logger().info('Port closed, restarting in 5s')
+            # break
+            time.sleep(5)  # if you don wait it crashes the jetson
+            node.get_logger().info('restarting')
             # main(dotheinit=False)
-
+    node.destroy_node()
+    rclpy.shutdown()
 if __name__ == '__main__':
     main()

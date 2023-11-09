@@ -6,27 +6,6 @@ import time
 
 import numpy as np
 
-if os.name == 'nt':
-    import msvcrt
-
-
-    def getch():
-        return msvcrt.getch().decode()
-else:
-    import sys, tty, termios
-
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-
-
-    def getch():
-        try:
-            tty.setraw(sys.stdin.fileno())
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
-
 from dynamixel_sdk import *  # Uses Dynamixel SDK library
 
 # ********* DYNAMIXEL Model definition *********
@@ -57,8 +36,9 @@ motor_table = {
         "DXL_MINIMUM_POSITION_VALUE": 0,
         "DXL_MAXIMUM_POSITION_VALUE": 4095,
 
-        "BAUDRATE": 57600,
+        # "BAUDRATE": 57600,
         # "BAUDRATE": 1000000,
+        "BAUDRATE": 4000000,
     }
     ,
     'MX_SERIES': {
@@ -260,7 +240,7 @@ class MotorHandler:
 
     def delete_dead_motors(self):
         motor_died = []
-        for index in range(len(self.motor_list)):
+        for index in range(len(self.motor_list) - 1, -1, -1):
             if not self.motor_list[index].alive:
                 this_id = int(self.motor_list[index].id)
                 motor_died.append(this_id)
@@ -316,22 +296,20 @@ class MotorHandler:
     def distibute_targets(self, angle_arr):
         for index, my_motor in enumerate(self.motor_list):
             my_motor.write_position(angle_arr[index])
-        self.publish()
-        return
+        return self.publish()
 
     def distibute_max_speeds(self, ang_speed_arr):
         for index, my_motor in enumerate(self.motor_list):
             my_motor.write_max_speed(ang_speed_arr[index])
-        self.publish()
-        return
+        return self.publish()
 
     def all_positions_available(self):
         return all([my_motor.position_available() or not my_motor.alive for my_motor in self.motor_list])
 
     def get_angles(self):
-        self.request_update()
-        while not self.all_positions_available():
-            self.request_update()
+        comm_success = self.request_update()
+        while comm_success and not self.all_positions_available():
+            comm_success = self.request_update()
         return np.array([my_motor.get_position() for my_motor in self.motor_list], dtype=float)
 
     def broadcast_target_on_time(self, angle, delta_time):
@@ -342,9 +320,9 @@ class MotorHandler:
     def to_target_on_time(self, angle_arr, delta_time):
         angle_now = self.get_angles()
         speed = abs((angle_arr - angle_now) / delta_time)
-        self.distibute_max_speeds(speed)
-        self.distibute_targets(angle_arr)
-        return
+        comm_result = self.distibute_max_speeds(speed)
+        comm_result = comm_result and self.distibute_targets(angle_arr)
+        return comm_result
 
     def publish(self):
         if not self.motor_list:
@@ -353,17 +331,26 @@ class MotorHandler:
         if dxl_comm_result != COMM_SUCCESS:
             print("Publish failed")
             print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
-        self.groupBulkWrite.clearParam()
-        return
+            for index, my_motor in enumerate(self.motor_list):
+                my_motor.check_motor_alive()
+            self.groupBulkWrite.clearParam()
+            return False
+        else:
+            self.groupBulkWrite.clearParam()
+            return True
 
     def request_update(self):
         if not self.motor_list:
-            return
+            return True
         dxl_comm_result = self.groupBulkRead.txRxPacket()
         if dxl_comm_result != COMM_SUCCESS:
             print("Request_update failed")
             print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
-        return
+            for index, my_motor in enumerate(self.motor_list):
+                my_motor.check_motor_alive()
+            return False
+        else:
+            return True
 
     def reset_bulkread(self):
         self.groupBulkRead.clearParam()

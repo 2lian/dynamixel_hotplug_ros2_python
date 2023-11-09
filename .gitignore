@@ -1,5 +1,9 @@
 /.idea
 /__pycache__
+*/__pycache__
+__pycache__/*
+__pycache__/
+__pycache__
 /log/
 /install/
 /build/

@@ -9,30 +9,16 @@ directory_to_add = f'./src/{package_name}/launch'
 sys.path.append(directory_to_add)
 import launch_setting
 
-robot = launch_setting.moonbot_leg
-
 ik_node_list = [Node(
     package=package_name,
     namespace='',  # Default namespace
-    executable='ik_node',
-    name=f'ik_node_{leg}',
+    executable='multi_dynamixel',
+    name=f'multi_dynamixel_usb_{leg}',
     arguments=['--ros-args', '--log-level', "info"],
     parameters=[{
-        'leg_number': leg,
-
-        'bodyToCoxa': robot.bodyToCoxa,
-        'coxaLength': robot.coxaLength,
-        'femurLength': robot.femurLength,
-        'tibiaLength': robot.tibiaLength,
-
-        'coxaMax': robot.coxaMax,
-        'coxaMin': robot.coxaMin,
-        'femurMax': robot.femurMax,
-        'femurMin': robot.femurMin,
-        'tibiaMax': robot.tibiaMax,
-        'tibiaMin': robot.tibiaMin,
+        'UsbPortNumber': leg,
     }]
-) for leg in range(4)]
+) for leg in [0, 1, 2, 3, 4]]
 
 nodeList = ik_node_list
 

@@ -86,7 +86,7 @@ class MultiDynamixel(Node):
 
         self.search_timer = self.create_timer(0.5, self.search_for_motors, callback_group=grp1)
         self.delete_the_dead_timer = self.create_timer(0.5, self.delete_the_dead, callback_group=grp1)
-        self.move_dtime = 0.5
+        self.move_dtime = 0.25
         self.move_timer = self.create_timer(self.move_dtime, self.move, callback_group=grp1)
         self.sin_amplitude = 0.5 # rad 
         self.sin_amplitude = min(self.sin_amplitude, 2 * np.pi)

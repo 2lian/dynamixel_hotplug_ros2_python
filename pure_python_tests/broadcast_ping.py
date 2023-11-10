@@ -60,7 +60,7 @@ BAUDRATE                = 4_000_000
 
 # Use the actual port assigned to the U2D2.
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
-DEVICENAME                  = '/dev/ttyUSB3'    
+DEVICENAME                  = '/dev/ttyUSB0'    
 
 # Initialize PortHandler instance
 # Set the port path

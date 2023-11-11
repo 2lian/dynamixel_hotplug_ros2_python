@@ -52,7 +52,7 @@ class MultiDynamixel(Node):
         self.IdRangeMin = self.get_parameter('IdRangeMin').get_parameter_value().integer_value
         self.declare_parameter('IdRangeMax', 3)
         self.IdRangeMax = self.get_parameter('IdRangeMax').get_parameter_value().integer_value
-        self.id_range = list(range(self.IdRangeMin, self.IdRangeMax+1))
+        self.id_range = list(range(self.IdRangeMin, self.IdRangeMax + 1))
         #    /\    #
         #   /  \   #
         ############   ^ ros2 parameters ^
@@ -133,9 +133,9 @@ class MultiDynamixel(Node):
 
     @error_catcher
     def delete_the_dead(self):
-        result = self.controller.delete_dead_motors()
-        if result:
-            self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {result} lost")
+        disconnected_motors = self.controller.delete_dead_motors()
+        if disconnected_motors:
+            self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {disconnected_motors} lost")
 
     @error_catcher
     def wave_test(self):
@@ -178,6 +178,7 @@ class MultiDynamixel(Node):
             if opened:
                 connected = True
                 self.get_logger().info(f"Port {self.UsbPortNumber}: opened :)")
+                break
             else:
                 self.get_logger().warning(f"Port {self.UsbPortNumber}: failed to open", once=True)
             time.sleep(1)
@@ -189,6 +190,7 @@ class MultiDynamixel(Node):
             if self.portHandler.setBaudRate(self.BAUDRATE):
                 connected = True
                 self.get_logger().info(f"Baudrate [{self.BAUDRATE}] set :)")
+                break
             else:
                 self.get_logger().warning("Failed to change the baudrate")
             time.sleep(1)
@@ -223,27 +225,19 @@ def main(args=None, dotheinit=True):
             node.get_logger().debug('KeyboardInterrupt caught, node shutting down cleanly\nbye bye <3')
             node.destroy_node()
             rclpy.shutdown()
-            quit()
+            break
         except serial.serialutil.SerialException as e:
             node.get_logger().error('Serial error occurred')
-            # node.portHandler.clearPort()
-            # time.sleep(1)
             node.portHandler.closePort()
             node.get_logger().info('Port closed and restarting in 5s')
-            # break
             time.sleep(5)  # if you don wait it crashes the jetson
             node.get_logger().info('restarting')
-            # main(dotheinit=False)
         except termios.error as e:
             node.get_logger().error('Termios error occurred')
-            # node.portHandler.clearPort()
-            # time.sleep(1)
             node.portHandler.closePort()
             node.get_logger().info('Port closed and restarting in 5s')
-            # break
             time.sleep(5)  # if you don wait it crashes the jetson
             node.get_logger().info('restarting')
-            # main(dotheinit=False)
     node.destroy_node()
     rclpy.shutdown()
 

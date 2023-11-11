@@ -12,6 +12,7 @@ import python_package_include.multi_controller as my_controller
 import serial
 import termios
 
+
 def error_catcher(func):
     # This is a wrapper to catch and display exceptions
     # Python exceptions don't work because of ros2's multithreading
@@ -31,26 +32,44 @@ def error_catcher(func):
 
     return wrap
 
+
 class MultiDynamixel(Node):
 
     @error_catcher
     def __init__(self):
         super().__init__(f'MultiDynamixel_node')
 
-        self.bypass_alive_check = False
-
+        ############   V ros2 parameters V
+        #   \  /   #
+        #    \/    #
         self.declare_parameter('UsbPortNumber', 1)
         self.UsbPortNumber = self.get_parameter('UsbPortNumber').get_parameter_value().integer_value
+
+        self.declare_parameter('Baudrate', 57_600)
+        self.BAUDRATE = self.get_parameter('Baudrate').get_parameter_value().integer_value
+
+        self.declare_parameter('IdRangeMin', 1)
+        self.IdRangeMin = self.get_parameter('IdRangeMin').get_parameter_value().integer_value
+        self.declare_parameter('IdRangeMax', 3)
+        self.IdRangeMax = self.get_parameter('IdRangeMax').get_parameter_value().integer_value
+        self.id_range = list(range(self.IdRangeMin, self.IdRangeMax+1))
+        #    /\    #
+        #   /  \   #
+        ############   ^ ros2 parameters ^
 
         # Use the actual port assigned to the U2D2.
         # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
         self.DEVICENAME = f'/dev/ttyUSB{self.UsbPortNumber}'
 
-        # DYNAMIXEL Protocol Version (1.0 / 2.0)
-        # https://emanual.robotis.com/docs/en/dxl/protocol2/
         self.PROTOCOL_VERSION = 2.0
 
-        # self.connect_and_setup(delete_controller=False)
+        # Will be defined when connecting
+        self.controller = None
+        self.groupBulkWrite = None
+        self.groupBulkRead = None
+        self.packetHandler = None
+        self.portHandler = None
+        self.bypass_alive_check = False
 
         ############   V Publishers V
         #   \  /   #
@@ -88,21 +107,29 @@ class MultiDynamixel(Node):
         self.delete_the_dead_timer = self.create_timer(0.5, self.delete_the_dead, callback_group=grp1)
         self.move_dtime = 0.25
         self.move_timer = self.create_timer(self.move_dtime, self.move, callback_group=grp1)
-        self.sin_amplitude = 0.5 # rad 
+        self.sin_amplitude = 0.5  # rad
         self.sin_amplitude = min(self.sin_amplitude, 2 * np.pi)
-        self.sin_period = 10 # sec
-        self.last_id_checked = 0
-        self.id_range = [1, 2, 3]
+        self.sin_period = 10  # sec
+        self.last_index_checked = 0
 
     @error_catcher
     def search_for_motors(self):
-        self.last_id_checked = (1 + self.last_id_checked) % len(self.id_range)
-        id_now = self.id_range[self.last_id_checked]
-        if id_now in [motor.id for motor in self.controller.motor_list]:
-            return
-        result = self.controller.refresh_motors([id_now])
-        if result:
-            self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {result} found :)")
+        """
+        pings one id that belong to a not yet connected motor
+        :return:
+        """
+        list_of_alive_motors = [motor.id for motor in self.controller.motor_list]
+        for i in self.id_range:
+            self.last_index_checked = (1 + self.last_index_checked) % len(self.id_range)
+            id_to_check = self.id_range[self.last_index_checked]
+            if id_to_check in list_of_alive_motors:
+                pass  # will try the next id
+            else:
+                # pings the id and returns
+                motor_found = self.controller.refresh_motors([id_to_check])
+                if motor_found:
+                    self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {motor_found} found :)")
+                return
 
     @error_catcher
     def delete_the_dead(self):
@@ -115,9 +142,9 @@ class MultiDynamixel(Node):
         period = self.sin_period
         x = (time.time() % period) / period * 2 * np.pi
         angle = my_controller.wave(x) / (2 * np.pi) * self.sin_amplitude
-        angle += np.pi - self.sin_amplitude/2
+        angle += np.pi - self.sin_amplitude / 2
         # print(angle)
-        comm_success = self.controller.broadcast_target_on_time(angle, self.move_dtime+0.1)
+        comm_success = self.controller.broadcast_target_on_time(angle, self.move_dtime + 0.1)
         if not comm_success:
             self.delete_the_dead()
 
@@ -126,10 +153,12 @@ class MultiDynamixel(Node):
         angle = msg.data
         return
 
+    @error_catcher
     def close_port(self):
         self.portHandler.closePort()
         return
 
+    @error_catcher
     def connect_and_setup(self, delete_controller=True):
         connected = False
         if delete_controller:
@@ -138,7 +167,6 @@ class MultiDynamixel(Node):
         self.packetHandler = my_controller.PacketHandler(self.PROTOCOL_VERSION)
         self.groupBulkRead = my_controller.GroupBulkRead(self.portHandler, self.packetHandler)
         self.groupBulkWrite = my_controller.GroupBulkWrite(self.portHandler, self.packetHandler)
-            
 
         while not connected:
             # Open port
@@ -156,7 +184,7 @@ class MultiDynamixel(Node):
 
         connected = False
         while not connected:
-            self.BAUDRATE = my_controller.motor_table["X_SERIES"]["BAUDRATE"]
+            # self.BAUDRATE = my_controller.motor_table["X_SERIES"]["BAUDRATE"]
             # Set port baudrate
             if self.portHandler.setBaudRate(self.BAUDRATE):
                 connected = True
@@ -171,31 +199,15 @@ class MultiDynamixel(Node):
                                                      groupBulkWrite=self.groupBulkWrite,
                                                      deviceName=self.DEVICENAME,
                                                      motor_series="X_SERIES")
-        
+
         for k in self.id_range:
             self.search_for_motors()
-
-        # self.controller.refresh_motors()
-        # while not self.controller.motor_list:
-        #     self.get_logger().warning(
-        #         f'''Port {self.UsbPortNumber}: no motors connected''', once=False)
-        #     if self.bypass_alive_check:
-        #         self.get_logger().warning(
-        #             f'''Motor check bypassed :)''')
-        #         break
-        #     self.controller.refresh_motors()
-        #     time.sleep(1)
-        # if not self.bypass_alive_check:
-        #     self.get_logger().warning(
-        #         f'''Port {self.UsbPortNumber}: total of {len(self.controller.motor_list)} motors connected :)''')
-
-        # self.controller.broadcast_max_speed(1)
 
 
 def main(args=None, dotheinit=True):
     if dotheinit:
         rclpy.init()
-    
+
     node = MultiDynamixel()
     executor = rclpy.executors.SingleThreadedExecutor()
     executor.add_node(node)
@@ -217,7 +229,7 @@ def main(args=None, dotheinit=True):
             # node.portHandler.clearPort()
             # time.sleep(1)
             node.portHandler.closePort()
-            node.get_logger().info('Port closed, restarting in 5s')
+            node.get_logger().info('Port closed and restarting in 5s')
             # break
             time.sleep(5)  # if you don wait it crashes the jetson
             node.get_logger().info('restarting')
@@ -227,12 +239,14 @@ def main(args=None, dotheinit=True):
             # node.portHandler.clearPort()
             # time.sleep(1)
             node.portHandler.closePort()
-            node.get_logger().info('Port closed, restarting in 5s')
+            node.get_logger().info('Port closed and restarting in 5s')
             # break
             time.sleep(5)  # if you don wait it crashes the jetson
             node.get_logger().info('restarting')
             # main(dotheinit=False)
     node.destroy_node()
     rclpy.shutdown()
+
+
 if __name__ == '__main__':
     main()

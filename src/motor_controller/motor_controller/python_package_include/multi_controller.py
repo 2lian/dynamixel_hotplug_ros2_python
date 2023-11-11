@@ -1,5 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Provides functions to control dynamixel motors using bulkread and bulkwrite
+(sending and receiving data from several motors on the same serial port)
+
+The motor class
+- prepare the messages to be sent on the serial port.
+- directly send/receive to one motor
+- stores the motor state
+The controller object
+- contains several motors
+- pings for motors
+- handles when motors are disconnected
+- ask those motors to prepare their messages
+- sends and receives those messages
+
+@author: Elian NEPPEL
+@laboratory: Moonshot, Space Robotic Lab, Tohoku University
+
+"""
 
 import os
 import time
@@ -100,7 +119,12 @@ motor_table = {
     ,
 }
 
+
 class Motor:
+    """
+    represents and handles a single motor
+    """
+
     def __init__(self, motor_data, packetHandler, portHandler, groupBulkRead, groupBulkWrite,
                  deviceName='/dev/ttyUSB0',
                  motor_series="X_SERIES"):
@@ -121,14 +145,26 @@ class Motor:
 
         self.alive = True
 
-    def rad2raw(self, radiants):
-        raw = int(self.minraw + (self.maxraw - self.minraw) * (radiants / (2 * np.pi)))
-        return np.clip(raw, self.minraw, self.maxraw)
+    def rad2raw(self, radiant: float) -> int:
+        """
+        Converts radiant angles to the corresponding raw value for the motor
+        :param radiant: angle in radiant
+        :return: corresponding raw value for the motor
+        """
+        raw = self.minraw + (self.maxraw - self.minraw) * (radiant / (2 * np.pi))
+        return int(np.clip(raw, self.minraw, self.maxraw))
 
-    def check_motor_alive(self, trial=0):
+    def check_motor_alive(self, trial: int = 0) -> bool:
+        """
+        Pings the motor 3 times (recursively) to check if it's alive
+        if motor is dead, self.alive is switched to False
+        :param trial: number of time the motors has been pinged
+        :return: True if motor is alive, else False
+        """
         dxl_model_number, dxl_comm_result, dxl_error = self.packetHandler.ping(self.portHandler, self.id)
         if dxl_comm_result == COMM_SUCCESS:
             print(f"after {trial} attempts ping successful, Motor {self.id:03d} Alive :)")
+            self.alive = True
             return True
         elif trial > 3:
             print(f"Motor {self.id} is dead\n{self.packetHandler.getRxPacketError(dxl_error)}")
@@ -137,7 +173,11 @@ class Motor:
         else:
             return self.check_motor_alive(trial + 1)
 
-    def enable(self):
+    def enable(self) -> None:
+        """
+        Enables torque on the motor (the motor will have power)
+        :return:
+        """
         dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler,
                                                                        self.id,
                                                                        self.addr_table["ADDR_TORQUE_ENABLE"],
@@ -151,7 +191,11 @@ class Motor:
         else:
             print(f"Dynamixel {self.id:03d} enabled")
 
-    def disable(self):
+    def disable(self) -> None:
+        """
+        Disable torque on the motor (the motor will power down)
+        :return:
+        """
         dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler,
                                                                        self.id,
                                                                        self.addr_table["ADDR_TORQUE_ENABLE"],
@@ -165,7 +209,11 @@ class Motor:
         else:
             print(f"Dynamixel {self.id:03d} disabled")
 
-    def subscribe_position(self):
+    def subscribe_position(self) -> None:
+        """
+        The position of the motor will be requested on the bulk read
+        :return:
+        """
         dxl_addparam_result = self.groupBulkRead.addParam(self.id,
                                                           self.addr_table["ADDR_PRESENT_POSITION"],
                                                           self.addr_table["LEN_PRESENT_POSITION"])
@@ -174,7 +222,11 @@ class Motor:
             print(f"[ID:{self.id:03d}] subscribe_position failed\n{dxl_addparam_result}")
             self.check_motor_alive()
 
-    def position_available(self):
+    def position_available(self) -> bool:
+        """
+        The position has been returned and the data is available
+        :return:
+        """
         dxl_getdata_result = self.groupBulkRead.isAvailable(self.id,
                                                             self.addr_table["ADDR_PRESENT_POSITION"],
                                                             self.addr_table["LEN_PRESENT_POSITION"])
@@ -183,13 +235,23 @@ class Motor:
             self.check_motor_alive()
         return dxl_getdata_result
 
-    def get_position(self):
+    def get_position(self) -> float:
+        """
+        Reads the position data received from the bulk read
+        :return:
+        """
         dxl1_present_position = self.groupBulkRead.getData(self.id,
                                                            self.addr_table["ADDR_PRESENT_POSITION"],
                                                            self.addr_table["LEN_PRESENT_POSITION"])
         return (dxl1_present_position - self.minraw) / (self.maxraw - self.minraw) * (2 * np.pi)
 
-    def write_position(self, angle: float):
+    def write_position(self, angle: float) -> None:
+        """
+        Write a motor target position onto the bulk write
+        (warning you cannot write two things for the same motor on the bulkwrite)
+        :param angle:
+        :return:
+        """
         raw = self.rad2raw(angle)
         param_goal_position = [DXL_LOBYTE(DXL_LOWORD(raw)),
                                DXL_HIBYTE(DXL_LOWORD(raw)),
@@ -204,7 +266,13 @@ class Motor:
             print("[ID:%03d] write_position failed" % self.id)
             self.check_motor_alive()
 
-    def write_max_speed(self, speed_rads):
+    def write_max_speed(self, speed_rads) -> None:
+        """
+        Write a maximum allowed speed for the motor on the bulk write
+        (warning you cannot write two things for the same motor on the bulkwrite)
+        :param speed_rads:
+        :return:
+        """
         rpm = speed_rads / (2 * np.pi) * 60
         scaled = rpm / 0.229 * 1.030  # XSERTIES unit scaling
         raw = np.clip(int(np.floor(scaled)), self.minraw, self.maxraw)
@@ -225,6 +293,10 @@ class Motor:
 
 
 class MotorHandler:
+    """
+    represent and handle several motors connected to the same port
+    """
+
     def __init__(self, packetHandler, portHandler, groupBulkRead, groupBulkWrite,
                  deviceName='/dev/ttyUSB0',
                  motor_series="X_SERIES"):
@@ -238,7 +310,11 @@ class MotorHandler:
         self.groupBulkWrite = groupBulkWrite
         self.motor_series = motor_series
 
-    def delete_dead_motors(self):
+    def delete_dead_motors(self) -> list:
+        """
+        delete motors that died from the list of motors being managed by the handler
+        :return:
+        """
         motor_died = []
         for index in range(len(self.motor_list) - 1, -1, -1):
             if not self.motor_list[index].alive:
@@ -253,7 +329,13 @@ class MotorHandler:
                 motor.subscribe_position()
         return motor_died
 
-    def refresh_motors(self, idrange = range(1, 17)):
+    def refresh_motors(self, idrange: list = range(1, 17)) -> list:
+        """
+        check if the motors with the provided ids are available
+        if yes those motor are added to the list of motors managed by the handler
+        :param idrange: range of motor id to check
+        :return: list of new motors
+        """
         # self.delete_dead_motors()
         id_list = list(idrange)
         already_here_list = [motor.id for motor in self.motor_list]
@@ -280,53 +362,105 @@ class MotorHandler:
             return []
 
     def disable(self):
+        """
+        Disables all motor
+        :return:
+        """
         [my_motor.disable() for my_motor in self.motor_list]
         return
 
     def enable(self):
+        """
+        Enables all motor
+        :return:
+        """
         [my_motor.enable() for my_motor in self.motor_list]
         return
 
-    def broadcast_target(self, angle):
+    def broadcast_target(self, angle: float):
+        """
+        Sends the same target to all connected motors
+        :param angle: target angle
+        :return: True if success
+        """
         return self.distibute_targets(np.full(len(self.motor_list), angle, dtype=float))
 
-    def broadcast_max_speed(self, ang_speed):
+    def broadcast_max_speed(self, ang_speed: float):
+        """
+        Sends the same max speed to all connected motors
+        :param ang_speed: max speed allowed
+        :return: True if success
+        """
         return self.distibute_max_speeds(np.full(len(self.motor_list), ang_speed, dtype=float))
 
     def distibute_targets(self, angle_arr):
+        """
+        Sends a list of target to corresponding motors
+        :param angle_arr: target angle array
+        :return: True if success
+        """
         for index, my_motor in enumerate(self.motor_list):
             my_motor.write_position(angle_arr[index])
         return self.publish()
 
-    def distibute_max_speeds(self, ang_speed_arr):
+    def distibute_max_speeds(self, ang_speed_arr: np.ndarray):
+        """
+        Sends a list of max speed to corresponding motors
+        :param ang_speed_arr: max speed array
+        :return: True if success
+        """
         for index, my_motor in enumerate(self.motor_list):
             my_motor.write_max_speed(ang_speed_arr[index])
         return self.publish()
 
-    def all_positions_available(self):
+    def all_positions_available(self) -> bool:
+        """
+        Ture, if each alive motor has resonded to their data resquest
+        :return:
+        """
         return all([my_motor.position_available() or not my_motor.alive for my_motor in self.motor_list])
 
-    def get_angles(self):
+    def get_angles(self) -> np.ndarray:
+        """
+        blocks and return the current angles of every motor
+        :return:
+        """
         comm_success = self.request_update()
         while comm_success and not self.all_positions_available():
             comm_success = self.request_update()
         return np.array([my_motor.get_position() for my_motor in self.motor_list], dtype=float)
 
-    def broadcast_target_on_time(self, angle, delta_time):
+    def broadcast_target_on_time(self, angle: float, delta_time: float) -> bool:
+        """
+        all motors will reach the target angle in delta_time
+        :param angle: target angle
+        :param delta_time: time in sec to reach the target
+        :return: True if success
+        """
         return self.to_target_on_time(
             np.full(len(self.motor_list), angle, dtype=float),
             delta_time)
 
-    def to_target_on_time(self, angle_arr, delta_time):
+    def to_target_on_time(self, angle_arr: np.ndarray, delta_time: float) -> bool:
+        """
+        all motors will reach their target angle from the array in delta_time
+        :param angle_arr: target angle array
+        :param delta_time: time in sec to reach the target
+        :return: True if success
+        """
         angle_now = self.get_angles()
         speed = abs((angle_arr - angle_now) / delta_time)
         comm_result = self.distibute_max_speeds(speed)
         comm_result = comm_result and self.distibute_targets(angle_arr)
         return comm_result
 
-    def publish(self):
+    def publish(self) -> bool:
+        """
+        Publishes all the data writen on the bulkwrite
+        :return:
+        """
         if not self.motor_list:
-            return
+            return True
         dxl_comm_result = self.groupBulkWrite.txPacket()
         if dxl_comm_result != COMM_SUCCESS:
             print("Publish failed")
@@ -339,7 +473,11 @@ class MotorHandler:
             self.groupBulkWrite.clearParam()
             return True
 
-    def request_update(self):
+    def request_update(self) -> bool:
+        """
+        request the data writen on the bulkread (does not wait for the response data)
+        :return:
+        """
         if not self.motor_list:
             return True
         dxl_comm_result = self.groupBulkRead.txRxPacket()
@@ -352,12 +490,21 @@ class MotorHandler:
         else:
             return True
 
-    def reset_bulkread(self):
+    def reset_bulkread(self) -> None:
+        """
+        clears everyting writen on the bulkread
+        :return:
+        """
         self.groupBulkRead.clearParam()
         return
 
 
-def search_for_motor_broadcast(packetHandler):
+def search_for_motor_broadcast(packetHandler) -> np.ndarray:
+    """
+    broadcasts a ping on the port
+    :param packetHandler:
+    :return: data of motors that responded, column 0 is the motor id
+    """
     dxl_data_dic, dxl_comm_result = packetHandler.broadcastPing(portHandler)
     # if dxl_comm_result != COMM_SUCCESS:
     #     print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
@@ -370,7 +517,14 @@ def search_for_motor_broadcast(packetHandler):
     return motor_data_array
 
 
-def search_for_motor(id_range, packetHandler, portHandler):
+def search_for_motor(id_range: list, packetHandler, portHandler) -> np.ndarray:
+    """
+    pings each motor id in the id_range one by one
+    :param id_range: list of id to ping
+    :param packetHandler:
+    :param portHandler:
+    :return: data of motors that responded, column 0 is the motor id
+    """
     id_list = []
 
     for id in id_range:
@@ -384,7 +538,8 @@ def search_for_motor(id_range, packetHandler, portHandler):
         motor_data_array[:, [0, 1]] = id_list
     return motor_data_array
 
-def wave(x):
+
+def wave(x: float) -> float:
     return (-np.cos(x) + 1) / 2 * 2 * np.pi
 
 
@@ -419,7 +574,7 @@ if __name__ == "__main__":
         else:
             print("Failed to open the port")
             print("Press any key to terminate...")
-            getch()
+            input()
             quit()
 
         BAUDRATE = motor_table["X_SERIES"]["BAUDRATE"]
@@ -429,7 +584,7 @@ if __name__ == "__main__":
         else:
             print("Failed to change the baudrate")
             print("Press any key to terminate...")
-            getch()
+            input()
             quit()
 
         if 1:  # continously do a sinusoid

@@ -1,3 +1,10 @@
+"""
+Contains one ros2 node responsible for controlling several dynamixels connected to the same usb-u2d2 controller
+
+@author: Elian NEPPEL
+@laboratory: Moonshot, Space Robotic Lab, Tohoku University
+"""
+
 import time
 import numpy as np
 import traceback
@@ -35,7 +42,6 @@ def error_catcher(func):
 
 class MultiDynamixel(Node):
 
-    @error_catcher
     def __init__(self):
         super().__init__(f'MultiDynamixel_node')
 
@@ -47,6 +53,9 @@ class MultiDynamixel(Node):
 
         self.declare_parameter('Baudrate', 57_600)
         self.BAUDRATE = self.get_parameter('Baudrate').get_parameter_value().integer_value
+
+        self.declare_parameter('MotorSeries', "X_SERIES")
+        self.MotorSeries = self.get_parameter('MotorSeries').get_parameter_value().string_value
 
         self.declare_parameter('IdRangeMin', 1)
         self.IdRangeMin = self.get_parameter('IdRangeMin').get_parameter_value().integer_value
@@ -103,8 +112,11 @@ class MultiDynamixel(Node):
         grp1 = MutuallyExclusiveCallbackGroup()
         grp2 = MutuallyExclusiveCallbackGroup()
 
-        self.search_timer = self.create_timer(0.5, self.search_for_motors, callback_group=grp1)
-        self.delete_the_dead_timer = self.create_timer(0.5, self.delete_the_dead, callback_group=grp1)
+        time_to_search_all_id = 2
+        search_delta_t = time_to_search_all_id/len(self.id_range)
+
+        self.search_timer = self.create_timer(search_delta_t, self.search_for_motors, callback_group=grp1)
+        self.delete_the_dead_timer = self.create_timer(2, self.delete_the_dead, callback_group=grp1)
         self.move_dtime = 0.25
         self.move_timer = self.create_timer(self.move_dtime, self.wave_test, callback_group=grp1)
         self.sin_amplitude = 0.5  # rad
@@ -160,7 +172,9 @@ class MultiDynamixel(Node):
 
     @error_catcher
     def connect_and_setup(self, delete_controller=True):
-        connected = False
+
+        rate = self.create_rate(1)
+
         if delete_controller:
             del self.controller
         self.portHandler = my_controller.PortHandler(self.DEVICENAME)
@@ -168,47 +182,43 @@ class MultiDynamixel(Node):
         self.groupBulkRead = my_controller.GroupBulkRead(self.portHandler, self.packetHandler)
         self.groupBulkWrite = my_controller.GroupBulkWrite(self.portHandler, self.packetHandler)
 
-        while not connected:
-            # Open port
+        while 1:  # Open port
             opened = False
             try:
                 opened = self.portHandler.openPort()
-            except:
-                pass
+            except serial.serialutil.SerialException as e:
+                self.get_logger().error('Serial error occurred')
             if opened:
-                connected = True
                 self.get_logger().info(f"Port {self.UsbPortNumber}: opened :)")
                 break
             else:
                 self.get_logger().warning(f"Port {self.UsbPortNumber}: failed to open", once=True)
-            time.sleep(1)
+            rate.sleep()
 
-        connected = False
-        while not connected:
-            # self.BAUDRATE = my_controller.motor_table["X_SERIES"]["BAUDRATE"]
-            # Set port baudrate
+        while 1:  # Set port baudrate
             if self.portHandler.setBaudRate(self.BAUDRATE):
-                connected = True
                 self.get_logger().info(f"Baudrate [{self.BAUDRATE}] set :)")
                 break
             else:
-                self.get_logger().warning("Failed to change the baudrate")
-            time.sleep(1)
+                self.get_logger().warning("Failed to change the baudrate", once=True)
+            rate.sleep()
 
         self.controller = my_controller.MotorHandler(packetHandler=self.packetHandler,
                                                      portHandler=self.portHandler,
                                                      groupBulkRead=self.groupBulkRead,
                                                      groupBulkWrite=self.groupBulkWrite,
                                                      deviceName=self.DEVICENAME,
-                                                     motor_series="X_SERIES")
+                                                     motor_series=self.MotorSeries)
 
-        for k in self.id_range:
-            self.search_for_motors()
+        motor_found = self.controller.refresh_motors(self.id_range)
+        if motor_found:
+            self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {motor_found} found :)")
+        else:
+            self.get_logger().warning(f"Port {self.UsbPortNumber}: NO MOTOR, but setup successful :)")
 
 
-def main(args=None, dotheinit=True):
-    if dotheinit:
-        rclpy.init()
+def main(args=None):
+    rclpy.init()
 
     node = MultiDynamixel()
     executor = rclpy.executors.SingleThreadedExecutor()
@@ -230,13 +240,13 @@ def main(args=None, dotheinit=True):
             node.get_logger().error('Serial error occurred')
             node.portHandler.closePort()
             node.get_logger().info('Port closed and restarting in 5s')
-            time.sleep(5)  # if you don wait it crashes the jetson
+            time.sleep(5)
             node.get_logger().info('restarting')
         except termios.error as e:
             node.get_logger().error('Termios error occurred')
             node.portHandler.closePort()
             node.get_logger().info('Port closed and restarting in 5s')
-            time.sleep(5)  # if you don wait it crashes the jetson
+            time.sleep(5)
             node.get_logger().info('restarting')
     node.destroy_node()
     rclpy.shutdown()

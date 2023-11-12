@@ -35,8 +35,9 @@ MY_DXL = 'X_SERIES'  # X330 (5.0 V recommended), X430, X540, 2X430
 # MY_DXL = 'PRO_A_SERIES' # PRO series with (A) firmware update.
 # MY_DXL = 'P_SERIES'     # PH54, PH42, PM54
 # MY_DXL = 'XL320'        # [WARNING] Operating Voltage : 7.4V
+# see https://emanual.robotis.com/docs/en/dxl/x/xm430-w350/#control-table-of-ram-area or equivalent for you motor
 
-motor_table = {
+motor_address_table = {
     'X_SERIES': {
         "ADDR_TORQUE_ENABLE": 64,
 
@@ -138,7 +139,7 @@ class Motor:
         self.groupBulkRead = groupBulkRead
         self.groupBulkWrite = groupBulkWrite
 
-        self.addr_table = motor_table[motor_series]
+        self.addr_table = motor_address_table[motor_series]
 
         self.minraw = self.addr_table["DXL_MINIMUM_POSITION_VALUE"]
         self.maxraw = self.addr_table["DXL_MAXIMUM_POSITION_VALUE"]
@@ -577,7 +578,7 @@ if __name__ == "__main__":
             input()
             quit()
 
-        BAUDRATE = motor_table["X_SERIES"]["BAUDRATE"]
+        BAUDRATE = motor_address_table["X_SERIES"]["BAUDRATE"]
         # Set port baudrate
         if portHandler.setBaudRate(BAUDRATE):
             print(f"Baudrate [{BAUDRATE}] set :)")

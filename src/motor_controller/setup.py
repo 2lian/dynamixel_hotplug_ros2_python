@@ -29,6 +29,7 @@ setup(
     entry_points={
         'console_scripts': [
             f'multi_dynamixel = {package_name}.multi_dynamixel:main',
+            f'moonbot_interface = {package_name}.interface_for_moonbot:main',
 
         ],
     },

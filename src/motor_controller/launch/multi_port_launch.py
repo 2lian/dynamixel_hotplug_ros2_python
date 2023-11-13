@@ -31,7 +31,16 @@ port_controller = [Node(
     }]
 ) for port in setting_to_use.USB_u2d2_port_to_use]
 
-nodeList = port_controller
+nodeList = port_controller + [Node(
+    package=package_name,
+    namespace='',  # Default namespace
+    executable='moonbot_interface',
+    name=f'moonbot_interface',
+    arguments=['--ros-args', '--log-level', "info"],
+    parameters=[{
+        'AngleUpdateRate': 20.0,
+    }]
+)]
 
 def generate_launch_description():
     return LaunchDescription(

@@ -7,4 +7,4 @@ colcon build --symlink-install --packages-select motor_controller
 export RCUTILS_CONSOLE_OUTPUT_FORMAT="{message}"
 export RCUTILS_COLORIZED_OUTPUT=1
 #export ROS_DOMAIN_ID=58
-ros2 launch src/motor_controller/launch/lvl_02_ik.py
+ros2 launch src/motor_controller/launch/multi_port_launch.py

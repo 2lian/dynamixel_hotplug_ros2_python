@@ -15,6 +15,8 @@ from std_msgs.msg import Float64
 from std_srvs.srv import Empty
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 
+from dyna_controller_messages.msg import AngleTime
+
 import python_package_include.multi_controller as my_controller
 import serial
 import termios
@@ -38,6 +40,41 @@ def error_catcher(func):
         return out
 
     return wrap
+
+class CallbackHolder:
+    def __init__(self, motor_number:int, curr_angle_dic:dict, MotorHandler, parent_node):
+        self.motor_number = motor_number
+        self.curr_angle_dic = curr_angle_dic
+        self.MotorHandler = MotorHandler
+        self.parent_node = parent_node
+
+        # self.sub = self.parent_node.create_subscription(Float64, f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", self.angle_cbk, 10)
+        self.sub = self.parent_node.create_subscription(AngleTime, f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", self.angle_time_cbk, 10)
+        self.pub = self.parent_node.create_publisher(Float64, f"angle_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", 10)
+        self.new_target_available = False
+        self.target_angle = None
+        self.target_time = None
+
+
+    def write_target_time(self, angle, deltatime):
+        self.target_angle = angle
+        self.target_time = deltatime
+        self.new_target_available = True
+
+    def angle_cbk(self, msg):
+        angle = msg.data
+        self.write_target_time(angle, deltatime=1)
+
+    def angle_time_cbk(self, msg):
+        angle = msg.angle
+        deltatime = msg.seconds
+        self.write_target_time(angle, deltatime)
+
+    def publish_current_angle(self):
+        msg = Float64()
+        msg.data = self.curr_angle_dic[self.motor_number]
+        self.pub.publish(msg)
+        
 
 
 class MultiDynamixel(Node):
@@ -80,27 +117,8 @@ class MultiDynamixel(Node):
         self.portHandler = None
         self.bypass_alive_check = False
 
-        ############   V Publishers V
-        #   \  /   #
-        #    \/    #
-        # self.joint_pub_list = [None] * 3
-        # for joint in range(3):
-        #     pub = self.create_publisher(Float64, f'set_joint_{self.leg_num}_{joint}_real', 10)
-        #     self.joint_pub_list[joint] = pub
-        #    /\    #
-        #   /  \   #
-        ############   ^ Publishers ^
-
-        ############   V Subscribers V
-        #   \  /   #
-        #    \/    #
-        # self.sub_rel_target = self.create_subscription(Float64, f'Motor_01',
-        #                                                self.set_motor_1,
-        #                                                10
-        #                                                )
-        #    /\    #
-        #   /  \   #
-        ############   ^ Subscribers ^
+        self.curr_angle_dic = {}
+        self.callback_holder_dic = {}
 
         ############   V Service V
         #   \  /   #
@@ -115,22 +133,60 @@ class MultiDynamixel(Node):
         time_to_search_all_id = 2
         search_delta_t = time_to_search_all_id/len(self.id_range)
 
-        self.search_timer = self.create_timer(search_delta_t, self.search_for_motors, callback_group=grp1)
+        self.search_timer = self.create_timer(search_delta_t, self.search_for_next_motor, callback_group=grp1)
         self.delete_the_dead_timer = self.create_timer(2, self.delete_the_dead, callback_group=grp1)
-        self.move_dtime = 0.25
-        self.move_timer = self.create_timer(self.move_dtime, self.wave_test, callback_group=grp1)
+        self.move_dtime = 0.1
+        # self.move_timer = self.create_timer(self.move_dtime, self.wave_test, callback_group=grp1)
         self.sin_amplitude = 0.5  # rad
         self.sin_amplitude = min(self.sin_amplitude, 2 * np.pi)
-        self.sin_period = 10  # sec
+        self.sin_period = 5  # sec
         self.last_index_checked = 0
 
+        self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles, callback_group=grp1)
+        self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
+
+
     @error_catcher
-    def search_for_motors(self):
+    def send_writen_angles(self):
+        self.refresh_and_publish_angles()
+
+        there_is_something_to_publish = False
+
+        for my_motor in self.controller.motor_list:
+            corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
+            if corresponding_cbk_holder.new_target_available:
+                there_is_something_to_publish = True
+                target_angle = corresponding_cbk_holder.target_angle
+                delta_time = corresponding_cbk_holder.target_time
+                delta_time = np.clip(delta_time, a_min=0.0001, a_max=None) # avoid division by zero and negative values
+                current_pos = self.curr_angle_dic[my_motor.id]
+
+                speed = abs((target_angle - current_pos) / delta_time)
+                my_motor.write_max_speed(speed)
+
+        if there_is_something_to_publish:
+            self.controller.publish()
+
+        for my_motor in self.controller.motor_list:
+            corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
+            if corresponding_cbk_holder.new_target_available:
+                there_is_something_to_publish = True
+                target_angle = corresponding_cbk_holder.target_angle
+                comm_fail = my_motor.write_position(target_angle)
+                if not comm_fail:
+                    corresponding_cbk_holder.new_target_available = False
+
+        if there_is_something_to_publish:
+            self.controller.publish()
+
+
+    @error_catcher
+    def search_for_next_motor(self):
         """
         pings one id that belong to a not yet connected motor
         :return:
         """
-        list_of_alive_motors = [motor.id for motor in self.controller.motor_list]
+        list_of_alive_motors = self.controller.get_motor_id_in_order()
         for i in self.id_range:
             self.last_index_checked = (1 + self.last_index_checked) % len(self.id_range)
             id_to_check = self.id_range[self.last_index_checked]
@@ -138,16 +194,56 @@ class MultiDynamixel(Node):
                 pass  # will try the next id
             else:
                 # pings the id and returns
-                motor_found = self.controller.refresh_motors([id_to_check])
+                motor_found = self.search_motors([id_to_check])
                 if motor_found:
                     self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {motor_found} found :)")
+                    self.search_for_next_motor()
                 return
+
+    @error_catcher
+    def search_motors(self, id_range: list):
+        motor_found = self.controller.refresh_motors(id_range)
+        if motor_found:
+            for motor_id in motor_found:
+                self.add_new_motor(motor_id)
+        return motor_found
+
+    @error_catcher
+    def add_new_motor(self, motor_id):
+        self.curr_angle_dic[motor_id] = None
+        self.callback_holder_dic[motor_id] = CallbackHolder(motor_number = motor_id,
+                                                            curr_angle_dic = self.curr_angle_dic, 
+                                                            MotorHandler = self.controller, 
+                                                            parent_node = self,
+        )
+
+    @error_catcher
+    def delete_motor(self, motor_id):
+        del self.curr_angle_dic[motor_id]
+        self.destroy_subscription(self.callback_holder_dic[motor_id].sub)
+        self.destroy_publisher(self.callback_holder_dic[motor_id].pub)
+        del self.callback_holder_dic[motor_id]
+
+    @error_catcher
+    def refresh_all_current_angles(self):
+        angle_arr = self.controller.get_angles()
+        for arr_index, motor_id in enumerate(self.controller.get_motor_id_in_order()):
+            self.curr_angle_dic[motor_id] = angle_arr[arr_index]
+        # self.get_logger().warning(f"{self.curr_angle_dic}")
+
+    @error_catcher
+    def refresh_and_publish_angles(self):
+        self.refresh_all_current_angles()
+        for cbk_holder in self.callback_holder_dic.values():
+            cbk_holder.publish_current_angle()
 
     @error_catcher
     def delete_the_dead(self):
         disconnected_motors = self.controller.delete_dead_motors()
         if disconnected_motors:
             self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {disconnected_motors} lost")
+            for motor_id in disconnected_motors:
+                self.delete_motor(motor_id)
 
     @error_catcher
     def wave_test(self):
@@ -161,14 +257,8 @@ class MultiDynamixel(Node):
             self.delete_the_dead()
 
     @error_catcher
-    def set_motor_1(self, msg):
-        angle = msg.data
-        return
-
-    @error_catcher
     def close_port(self):
         self.portHandler.closePort()
-        return
 
     @error_catcher
     def connect_and_setup(self, delete_controller=True):
@@ -187,7 +277,7 @@ class MultiDynamixel(Node):
             try:
                 opened = self.portHandler.openPort()
             except serial.serialutil.SerialException as e:
-                self.get_logger().error('Serial error occurred')
+                self.get_logger().warning(f'Port {self.UsbPortNumber}: Serial error on opening, port may not exist')
             if opened:
                 self.get_logger().info(f"Port {self.UsbPortNumber}: opened :)")
                 break
@@ -210,7 +300,7 @@ class MultiDynamixel(Node):
                                                      deviceName=self.DEVICENAME,
                                                      motor_series=self.MotorSeries)
 
-        motor_found = self.controller.refresh_motors(self.id_range)
+        motor_found = self.search_motors(self.id_range)
         if motor_found:
             self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {motor_found} found :)")
         else:
@@ -232,9 +322,7 @@ def main(args=None):
             already_setup = True
             executor.spin()
         except KeyboardInterrupt as e:
-            node.get_logger().debug('KeyboardInterrupt caught, node shutting down cleanly\nbye bye <3')
-            node.destroy_node()
-            rclpy.shutdown()
+            node.get_logger().info('KeyboardInterrupt, shutting down, bye bye <3')
             break
         except serial.serialutil.SerialException as e:
             node.get_logger().error('Serial error occurred')

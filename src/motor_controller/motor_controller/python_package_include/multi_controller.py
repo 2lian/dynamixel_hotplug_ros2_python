@@ -152,8 +152,12 @@ class Motor:
         :param radiant: angle in radiant
         :return: corresponding raw value for the motor
         """
+        radiant += np.pi  # 0 is everything pointing sraight, positive and negative angles should be used
         raw = self.minraw + (self.maxraw - self.minraw) * (radiant / (2 * np.pi))
         return int(np.clip(raw, self.minraw, self.maxraw))
+
+    def raw2rad(self, raw:int) -> float:
+        return (raw - self.minraw) / (self.maxraw - self.minraw) * (2 * np.pi) - np.pi
 
     def check_motor_alive(self, trial: int = 0) -> bool:
         """
@@ -244,7 +248,7 @@ class Motor:
         dxl1_present_position = self.groupBulkRead.getData(self.id,
                                                            self.addr_table["ADDR_PRESENT_POSITION"],
                                                            self.addr_table["LEN_PRESENT_POSITION"])
-        return (dxl1_present_position - self.minraw) / (self.maxraw - self.minraw) * (2 * np.pi)
+        return self.raw2rad(dxl1_present_position)
 
     def write_position(self, angle: float) -> None:
         """
@@ -362,6 +366,9 @@ class MotorHandler:
         else:
             return []
 
+    def get_motor_id_in_order(self):
+        return [motor.id for motor in self.motor_list]
+
     def disable(self):
         """
         Disables all motor
@@ -438,19 +445,30 @@ class MotorHandler:
         :param delta_time: time in sec to reach the target
         :return: True if success
         """
-        return self.to_target_on_time(
+        return self.to_target_same_time(
             np.full(len(self.motor_list), angle, dtype=float),
             delta_time)
 
-    def to_target_on_time(self, angle_arr: np.ndarray, delta_time: float) -> bool:
+    def to_target_same_time(self, angle_arr: np.ndarray, delta_time: float) -> bool:
         """
         all motors will reach their target angle from the array in delta_time
         :param angle_arr: target angle array
         :param delta_time: time in sec to reach the target
         :return: True if success
         """
+        delta_time_arr = np.full(shape=angle_arr.shape, fill_value=delta_time, dtype=float)
+        return self.to_target_using_angle_time(angle_arr, delta_time_arr)
+
+    def to_target_using_angle_time(self, angle_arr: np.ndarray, delta_time_arr: np.ndarray) -> bool:
+        """
+        all motors will reach their target angle in  the corresponding time in the delta_time_arr array
+        :param angle_arr: target angle array
+        :param delta_time_arr: array of time in sec to reach the target
+        :return: True if success
+        """
+        delta_time_arr_safe = np.clip(delta_time_arr, a_min=0.0001, a_max=None) # avoid division by zero and negative values
         angle_now = self.get_angles()
-        speed = abs((angle_arr - angle_now) / delta_time)
+        speed = abs((angle_arr - angle_now) / delta_time_arr_safe)
         comm_result = self.distibute_max_speeds(speed)
         comm_result = comm_result and self.distibute_targets(angle_arr)
         return comm_result

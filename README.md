@@ -1,7 +1,7 @@
-# Dynamixel With Ros2
+# Dynamixel Motor Ros2 package using Pyhton, Hotplug capable
 
 This repo provides python libraries and ros2 nodes to control several dynamixels on several u2d2 interfaces 
-with hotplug capabilities.
+with hotplug capabilities (motor can be (dis)connected at runtime).
 
 - `multi_controller.py`: Custom python library to control multiple dynamixels connected to the same serial port 
 using velocity profile and bulk raed/write serial commands.

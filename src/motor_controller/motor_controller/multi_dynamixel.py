@@ -49,8 +49,8 @@ class CallbackHolder:
         self.parent_node = parent_node
 
         # self.sub = self.parent_node.create_subscription(Float64, f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", self.angle_cbk, 10)
-        self.sub = self.parent_node.create_subscription(AngleTime, f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", self.angle_time_cbk, 10)
-        self.pub = self.parent_node.create_publisher(Float64, f"angle_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", 10)
+        self.sub = self.parent_node.create_subscription(AngleTime, f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", self.angle_time_cbk, 1, callback_group=ReentrantCallbackGroup())
+        self.pub = self.parent_node.create_publisher(Float64, f"angle_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", 10, callback_group=ReentrantCallbackGroup())
         self.new_target_available = False
         self.target_angle = None
         self.target_time = None
@@ -144,6 +144,7 @@ class MultiDynamixel(Node):
 
         self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles, callback_group=grp1)
         self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
+        # self.last = 0
 
 
     @error_catcher
@@ -157,6 +158,7 @@ class MultiDynamixel(Node):
 
                 if not there_is_something_to_publish: # new angle is here and there is work to be done
                     self.refresh_and_publish_angles()
+                    self.refresh_and_publish_angle_timer.reset()
                     there_is_something_to_publish = True
 
                 target_angle = corresponding_cbk_holder.target_angle
@@ -168,12 +170,15 @@ class MultiDynamixel(Node):
                 my_motor.write_max_speed(speed)
 
         if there_is_something_to_publish:
+            # now = time.time()
+            # self.get_logger().warning(f"{now - self.last:.2f}")
+            # self.last = now
             self.controller.publish()
 
             for my_motor in self.controller.motor_list:
                 corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
+
                 if corresponding_cbk_holder.new_target_available:
-                    there_is_something_to_publish = True
                     target_angle = corresponding_cbk_holder.target_angle
                     comm_fail = my_motor.write_position(target_angle)
                     if not comm_fail:

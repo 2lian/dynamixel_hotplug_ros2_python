@@ -148,14 +148,17 @@ class MultiDynamixel(Node):
 
     @error_catcher
     def send_writen_angles(self):
-        self.refresh_and_publish_angles()
 
         there_is_something_to_publish = False
 
         for my_motor in self.controller.motor_list:
             corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
             if corresponding_cbk_holder.new_target_available:
-                there_is_something_to_publish = True
+
+                if not there_is_something_to_publish: # new angle is here and there is work to be done
+                    self.refresh_and_publish_angles()
+                    there_is_something_to_publish = True
+
                 target_angle = corresponding_cbk_holder.target_angle
                 delta_time = corresponding_cbk_holder.target_time
                 delta_time = np.clip(delta_time, a_min=0.0001, a_max=None) # avoid division by zero and negative values
@@ -167,16 +170,15 @@ class MultiDynamixel(Node):
         if there_is_something_to_publish:
             self.controller.publish()
 
-        for my_motor in self.controller.motor_list:
-            corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
-            if corresponding_cbk_holder.new_target_available:
-                there_is_something_to_publish = True
-                target_angle = corresponding_cbk_holder.target_angle
-                comm_fail = my_motor.write_position(target_angle)
-                if not comm_fail:
-                    corresponding_cbk_holder.new_target_available = False
+            for my_motor in self.controller.motor_list:
+                corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
+                if corresponding_cbk_holder.new_target_available:
+                    there_is_something_to_publish = True
+                    target_angle = corresponding_cbk_holder.target_angle
+                    comm_fail = my_motor.write_position(target_angle)
+                    if not comm_fail:
+                        corresponding_cbk_holder.new_target_available = False
 
-        if there_is_something_to_publish:
             self.controller.publish()
 
 

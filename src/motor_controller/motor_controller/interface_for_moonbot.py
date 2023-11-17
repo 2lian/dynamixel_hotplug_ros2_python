@@ -56,7 +56,7 @@ class JointCallbackHolder:
         self.highlevel_sub = self.parent_node.create_subscription(Float64, f"set_joint_{self.leg_num}_{self.joint_num}_real", self.from_highlevel_to_dyna, 10, callback_group=self.cbkgrp)
         self.to_dyna_pub = self.parent_node.create_publisher(AngleTime, f"set_port_{self.port}_mot_{self.motor_id}", 10, callback_group=self.cbkgrp)
 
-        self.dyna_sub = self.parent_node.create_subscription(Float64, f"angle_port_{self.port}_{self.motor_id}", self.from_dyna_to_highlevel, 10, callback_group=self.cbkgrp)
+        self.dyna_sub = self.parent_node.create_subscription(Float64, f"angle_port_{self.port}_mot_{self.motor_id}", self.from_dyna_to_highlevel, 10, callback_group=self.cbkgrp)
         self.to_highlevel_pub = self.parent_node.create_publisher(Float64, f"angle_{self.leg_num}_{self.joint_num}", 10, callback_group=self.cbkgrp)
 
     def from_highlevel_to_dyna(self, msg):

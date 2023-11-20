@@ -1,0 +1,18 @@
+[1.984s] Invoking command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller': PYTHONPATH=/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/prefix_override:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/build --no-deps install_data
+[2.455s] running develop
+[2.730s] running egg_info
+[2.731s] writing motor_controller.egg-info/PKG-INFO
+[2.731s] writing dependency_links to motor_controller.egg-info/dependency_links.txt
+[2.731s] writing entry points to motor_controller.egg-info/entry_points.txt
+[2.732s] writing requirements to motor_controller.egg-info/requires.txt
+[2.732s] writing top-level names to motor_controller.egg-info/top_level.txt
+[2.792s] reading manifest file 'motor_controller.egg-info/SOURCES.txt'
+[2.794s] writing manifest file 'motor_controller.egg-info/SOURCES.txt'
+[2.863s] running build_ext
+[2.863s] Creating /home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/python3.8/site-packages/motor-controller.egg-link (link to .)
+[2.865s] Installing moonbot_interface script to /home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/motor_controller
+[2.865s] Installing multi_dynamixel script to /home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/motor_controller
+[2.866s] 
+[2.866s] Installed /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller
+[2.866s] running install_data
+[2.939s] Invoked command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller' returned '0': PYTHONPATH=/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/prefix_override:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/build --no-deps install_data

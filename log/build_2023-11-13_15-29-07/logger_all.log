@@ -1,0 +1,272 @@
+[4.393s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--symlink-install']
+[4.393s] DEBUG:colcon:Parsed command line arguments: Namespace(allow_overriding=[], ament_cmake_args=None, base_paths=['.'], build_base='build', catkin_cmake_args=None, catkin_skip_building_tests=False, cmake_args=None, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, cmake_target=None, cmake_target_skip_unavailable=False, continue_on_error=False, event_handlers=None, executor='parallel', ignore_user_meta=False, install_base='install', log_base=None, log_level=None, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0xffffb16a66d0>>, merge_install=False, metas=['./colcon.meta'], packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_end=None, packages_ignore=None, packages_ignore_regex=None, packages_select=None, packages_select_build_failed=False, packages_select_by_dep=None, packages_select_regex=None, packages_select_test_failures=False, packages_skip=None, packages_skip_build_finished=False, packages_skip_by_dep=None, packages_skip_regex=None, packages_skip_test_passed=False, packages_skip_up_to=None, packages_start=None, packages_up_to=None, packages_up_to_regex=None, parallel_workers=8, paths=None, symlink_install=True, test_result_base=None, verb_extension=<colcon_core.verb.build.BuildVerb object at 0xffffb16a66d0>, verb_name='build', verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0xffffb16b28e0>)
+[4.589s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[4.590s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[4.590s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[4.590s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[4.590s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[4.590s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[4.590s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/moonbotj40/elian_stuff/my_dynamixel_repo'
+[4.590s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[4.590s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[4.591s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[4.591s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[4.591s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[4.591s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[4.591s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[4.591s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[4.591s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[4.614s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[4.614s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[4.615s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[4.615s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[4.615s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[4.615s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[4.615s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[4.615s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[4.616s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[4.616s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[4.616s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[4.616s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[4.616s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[4.617s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[4.617s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extensions ['ignore', 'ignore_ament_install']
+[4.617s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extension 'ignore'
+[4.617s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extension 'ignore_ament_install'
+[4.617s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extensions ['colcon_pkg']
+[4.617s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extension 'colcon_pkg'
+[4.617s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extensions ['colcon_meta']
+[4.617s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extension 'colcon_meta'
+[4.618s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extensions ['ros']
+[4.618s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extension 'ros'
+[4.618s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extensions ['cmake', 'python']
+[4.618s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extension 'cmake'
+[4.618s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extension 'python'
+[4.618s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extensions ['python_setup_py']
+[4.618s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests) by extension 'python_setup_py'
+[4.618s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extensions ['ignore', 'ignore_ament_install']
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extension 'ignore'
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extension 'ignore_ament_install'
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extensions ['colcon_pkg']
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extension 'colcon_pkg'
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extensions ['colcon_meta']
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extension 'colcon_meta'
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extensions ['ros']
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extension 'ros'
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extensions ['cmake', 'python']
+[4.619s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extension 'cmake'
+[4.620s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extension 'python'
+[4.620s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extensions ['python_setup_py']
+[4.620s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk) by extension 'python_setup_py'
+[4.620s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extensions ['ignore', 'ignore_ament_install']
+[4.620s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extension 'ignore'
+[4.620s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extension 'ignore_ament_install'
+[4.620s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extensions ['colcon_pkg']
+[4.620s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extension 'colcon_pkg'
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extensions ['colcon_meta']
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extension 'colcon_meta'
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extensions ['ros']
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extension 'ros'
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extensions ['cmake', 'python']
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extension 'cmake'
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extension 'python'
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extensions ['python_setup_py']
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/dynamixel_sdk/__pycache__) by extension 'python_setup_py'
+[4.621s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extensions ['ignore', 'ignore_ament_install']
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extension 'ignore'
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extension 'ignore_ament_install'
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extensions ['colcon_pkg']
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extension 'colcon_pkg'
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extensions ['colcon_meta']
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extension 'colcon_meta'
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extensions ['ros']
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extension 'ros'
+[4.622s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extensions ['cmake', 'python']
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extension 'cmake'
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extension 'python'
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extensions ['python_setup_py']
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(pure_python_tests/protocol2_0) by extension 'python_setup_py'
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[4.623s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[4.624s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extensions ['ignore', 'ignore_ament_install']
+[4.625s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extension 'ignore'
+[4.625s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extension 'ignore_ament_install'
+[4.625s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extensions ['colcon_pkg']
+[4.625s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extension 'colcon_pkg'
+[4.625s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extensions ['colcon_meta']
+[4.625s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extension 'colcon_meta'
+[4.625s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extensions ['ros']
+[4.625s] Level 1:colcon.colcon_core.package_identification:_identify(src/dyna_controller_messages) by extension 'ros'
+[4.631s] DEBUG:colcon.colcon_core.package_identification:Package 'src/dyna_controller_messages' with type 'ros.ament_cmake' and name 'dyna_controller_messages'
+[4.631s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extensions ['ignore', 'ignore_ament_install']
+[4.631s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extension 'ignore'
+[4.631s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extension 'ignore_ament_install'
+[4.631s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extensions ['colcon_pkg']
+[4.632s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extension 'colcon_pkg'
+[4.632s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extensions ['colcon_meta']
+[4.632s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extension 'colcon_meta'
+[4.632s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extensions ['ros']
+[4.632s] Level 1:colcon.colcon_core.package_identification:_identify(src/motor_controller) by extension 'ros'
+[4.633s] DEBUG:colcon.colcon_core.package_identification:Package 'src/motor_controller' with type 'ros.ament_python' and name 'motor_controller'
+[4.633s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[4.633s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[4.633s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[4.633s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[4.633s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[5.033s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[5.033s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[5.107s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/custom_messages' in the environment variable AMENT_PREFIX_PATH doesn't exist
+[5.107s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller' in the environment variable AMENT_PREFIX_PATH doesn't exist
+[5.107s] WARNING:colcon.colcon_ros.prefix_path.catkin:The path '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/custom_messages' in the environment variable CMAKE_PREFIX_PATH doesn't exist
+[5.182s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 0 installed packages in /home/moonbotj40/elian_stuff/my_dynamixel_repo/install
+[5.256s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 257 installed packages in /opt/ros/foxy
+[5.259s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[5.569s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'cmake_args' from command line to 'None'
+[5.570s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'cmake_target' from command line to 'None'
+[5.570s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[5.570s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'cmake_clean_cache' from command line to 'False'
+[5.570s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'cmake_clean_first' from command line to 'False'
+[5.570s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'cmake_force_configure' from command line to 'False'
+[5.570s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'ament_cmake_args' from command line to 'None'
+[5.570s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'catkin_cmake_args' from command line to 'None'
+[5.570s] Level 5:colcon.colcon_core.verb:set package 'dyna_controller_messages' build argument 'catkin_skip_building_tests' from command line to 'False'
+[5.570s] DEBUG:colcon.colcon_core.verb:Building package 'dyna_controller_messages' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages', 'merge_install': False, 'path': '/home/moonbotj40/elian_stuff/my_dynamixel_repo/src/dyna_controller_messages', 'symlink_install': True, 'test_result_base': None}
+[5.645s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'cmake_args' from command line to 'None'
+[5.645s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'cmake_target' from command line to 'None'
+[5.645s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[5.645s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'cmake_clean_cache' from command line to 'False'
+[5.645s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'cmake_clean_first' from command line to 'False'
+[5.645s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'cmake_force_configure' from command line to 'False'
+[5.645s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'ament_cmake_args' from command line to 'None'
+[5.645s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'catkin_cmake_args' from command line to 'None'
+[5.646s] Level 5:colcon.colcon_core.verb:set package 'motor_controller' build argument 'catkin_skip_building_tests' from command line to 'False'
+[5.646s] DEBUG:colcon.colcon_core.verb:Building package 'motor_controller' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller', 'merge_install': False, 'path': '/home/moonbotj40/elian_stuff/my_dynamixel_repo/src/motor_controller', 'symlink_install': True, 'test_result_base': None}
+[5.718s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[5.793s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[5.794s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/src/dyna_controller_messages' with build type 'ament_cmake'
+[5.794s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/src/dyna_controller_messages'
+[5.873s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[5.873s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[5.873s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[6.108s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/src/motor_controller' with build type 'ament_python'
+[6.109s] Level 1:colcon.colcon_core.shell:create_environment_hook('motor_controller', 'ament_prefix_path')
+[6.189s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/hook/ament_prefix_path.ps1'
+[6.191s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/hook/ament_prefix_path.dsv'
+[6.192s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/hook/ament_prefix_path.sh'
+[6.274s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[6.274s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[6.519s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller:/opt/ros/foxy /usr/bin/cmake /home/moonbotj40/elian_stuff/my_dynamixel_repo/src/dyna_controller_messages -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages
+[6.996s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/src/motor_controller'
+[7.084s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[7.085s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[8.134s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller': PYTHONPATH=/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/prefix_override:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/build --no-deps install_data
+[9.089s] Level 1:colcon.colcon_core.shell:create_environment_hook('motor_controller', 'pythonpath_develop')
+[9.090s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller' returned '0': PYTHONPATH=/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/prefix_override:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py develop --editable --build-directory /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/build --no-deps install_data
+[9.177s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/share/motor_controller/hook/pythonpath_develop.ps1'
+[9.179s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/share/motor_controller/hook/pythonpath_develop.dsv'
+[9.179s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/motor_controller/share/motor_controller/hook/pythonpath_develop.sh'
+[9.300s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller' for CMake module files
+[9.301s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller' for CMake config files
+[9.302s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib'
+[9.303s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/bin'
+[9.303s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/pkgconfig/motor_controller.pc'
+[9.303s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/lib/python3.8/site-packages'
+[9.304s] Level 1:colcon.colcon_core.shell:create_environment_hook('motor_controller', 'pythonpath')
+[9.381s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/hook/pythonpath.ps1'
+[9.383s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/hook/pythonpath.dsv'
+[9.383s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/hook/pythonpath.sh'
+[9.384s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/bin'
+[9.384s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(motor_controller)
+[9.461s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/package.ps1'
+[9.463s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/package.dsv'
+[9.464s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/package.sh'
+[9.465s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/package.bash'
+[9.466s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/motor_controller/package.zsh'
+[9.467s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller/share/colcon-core/packages/motor_controller)
+[9.471s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller:/opt/ros/foxy /usr/bin/cmake /home/moonbotj40/elian_stuff/my_dynamixel_repo/src/dyna_controller_messages -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages
+[9.478s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller:/opt/ros/foxy /usr/bin/cmake --build /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages -- -j8 -l8
+[14.455s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller:/opt/ros/foxy /usr/bin/cmake --build /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages -- -j8 -l8
+[14.579s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller:/opt/ros/foxy /usr/bin/cmake --install /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages
+[15.770s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(dyna_controller_messages)
+[15.771s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/motor_controller:/opt/ros/foxy /usr/bin/cmake --install /home/moonbotj40/elian_stuff/my_dynamixel_repo/build/dyna_controller_messages
+[15.867s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages' for CMake module files
+[15.869s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages' for CMake config files
+[15.870s] Level 1:colcon.colcon_core.shell:create_environment_hook('dyna_controller_messages', 'cmake_prefix_path')
+[15.946s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/cmake_prefix_path.ps1'
+[15.947s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/cmake_prefix_path.dsv'
+[15.947s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/cmake_prefix_path.sh'
+[15.949s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/lib'
+[15.949s] Level 1:colcon.colcon_core.shell:create_environment_hook('dyna_controller_messages', 'ld_library_path_lib')
+[16.024s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/ld_library_path_lib.ps1'
+[16.025s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/ld_library_path_lib.dsv'
+[16.026s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/ld_library_path_lib.sh'
+[16.026s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/bin'
+[16.027s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/lib/pkgconfig/dyna_controller_messages.pc'
+[16.027s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/lib/python3.8/site-packages'
+[16.027s] Level 1:colcon.colcon_core.shell:create_environment_hook('dyna_controller_messages', 'pythonpath')
+[16.102s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/pythonpath.ps1'
+[16.103s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/pythonpath.dsv'
+[16.104s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/pythonpath.sh'
+[16.105s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/bin'
+[16.180s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.ps1'
+[16.181s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.dsv'
+[16.182s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.sh'
+[16.183s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.bash'
+[16.184s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.zsh'
+[16.184s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/colcon-core/packages/dyna_controller_messages)
+[16.355s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(dyna_controller_messages)
+[16.429s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages' for CMake module files
+[16.431s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages' for CMake config files
+[16.432s] Level 1:colcon.colcon_core.shell:create_environment_hook('dyna_controller_messages', 'cmake_prefix_path')
+[16.507s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/cmake_prefix_path.ps1'
+[16.509s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/cmake_prefix_path.dsv'
+[16.509s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/cmake_prefix_path.sh'
+[16.510s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/lib'
+[16.511s] Level 1:colcon.colcon_core.shell:create_environment_hook('dyna_controller_messages', 'ld_library_path_lib')
+[16.586s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/ld_library_path_lib.ps1'
+[16.587s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/ld_library_path_lib.dsv'
+[16.588s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/ld_library_path_lib.sh'
+[16.589s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/bin'
+[16.589s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/lib/pkgconfig/dyna_controller_messages.pc'
+[16.589s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/lib/python3.8/site-packages'
+[16.589s] Level 1:colcon.colcon_core.shell:create_environment_hook('dyna_controller_messages', 'pythonpath')
+[16.665s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/pythonpath.ps1'
+[16.666s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/pythonpath.dsv'
+[16.666s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/hook/pythonpath.sh'
+[16.667s] Level 1:colcon.colcon_core.environment:checking '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/bin'
+[16.742s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.ps1'
+[16.744s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.dsv'
+[16.745s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.sh'
+[16.746s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.bash'
+[16.746s] INFO:colcon.colcon_core.shell:Creating package script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/dyna_controller_messages/package.zsh'
+[16.747s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/dyna_controller_messages/share/colcon-core/packages/dyna_controller_messages)
+[16.748s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[16.749s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[16.749s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[16.750s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[16.849s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[16.850s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[16.850s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[16.882s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[16.957s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/local_setup.ps1'
+[16.959s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/_local_setup_util_ps1.py'
+[16.962s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/setup.ps1'
+[17.038s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/local_setup.sh'
+[17.039s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/_local_setup_util_sh.py'
+[17.040s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/setup.sh'
+[17.116s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/local_setup.bash'
+[17.117s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/setup.bash'
+[17.192s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/local_setup.zsh'
+[17.193s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/moonbotj40/elian_stuff/my_dynamixel_repo/install/setup.zsh'

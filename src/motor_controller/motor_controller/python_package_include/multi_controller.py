@@ -156,7 +156,7 @@ class Motor:
         raw = self.minraw + (self.maxraw - self.minraw) * (radiant / (2 * np.pi))
         return int(np.clip(raw, self.minraw, self.maxraw))
 
-    def raw2rad(self, raw:int) -> float:
+    def raw2rad(self, raw: int) -> float:
         return (raw - self.minraw) / (self.maxraw - self.minraw) * (2 * np.pi) - np.pi
 
     def check_motor_alive(self, trial: int = 0) -> bool:
@@ -245,10 +245,14 @@ class Motor:
         Reads the position data received from the bulk read
         :return:
         """
-        dxl1_present_position = self.groupBulkRead.getData(self.id,
-                                                           self.addr_table["ADDR_PRESENT_POSITION"],
-                                                           self.addr_table["LEN_PRESENT_POSITION"])
-        return self.raw2rad(dxl1_present_position)
+        motor_raw_data = self.groupBulkRead.getData(self.id,
+                                                    self.addr_table["ADDR_PRESENT_POSITION"],
+                                                    self.addr_table["LEN_PRESENT_POSITION"])
+        if motor_raw_data == 0:  # error when getting the data
+            # this 0 comes from the sdk, I don't know if the motor can ever return 0 as a valid position
+            return np.nan
+        else:
+            return self.raw2rad(motor_raw_data)
 
     def write_position(self, angle: float) -> None:
         """
@@ -443,7 +447,6 @@ class MotorHandler:
         else:
             return np.full(len(self.motor_list), np.nan, dtype=float)
 
-
     def broadcast_target_on_time(self, angle: float, delta_time: float) -> bool:
         """
         all motors will reach the target angle in delta_time
@@ -472,7 +475,8 @@ class MotorHandler:
         :param delta_time_arr: array of time in sec to reach the target
         :return: True if success
         """
-        delta_time_arr_safe = np.clip(delta_time_arr, a_min=0.0001, a_max=None) # avoid division by zero and negative values
+        delta_time_arr_safe = np.clip(delta_time_arr, a_min=0.0001,
+                                      a_max=None)  # avoid division by zero and negative values
         angle_now = self.get_angles()
         speed = abs((angle_arr - angle_now) / delta_time_arr_safe)
         comm_result = self.distibute_max_speeds(speed)

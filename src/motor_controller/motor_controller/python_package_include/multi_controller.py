@@ -322,7 +322,7 @@ class MotorHandler:
     def delete_dead_motors(self) -> list:
         """
         delete motors that died from the list of motors being managed by the handler
-        :return:
+        :return: List of motor id that died
         """
         motor_died = []
         for index in range(len(self.motor_list) - 1, -1, -1):
@@ -343,7 +343,7 @@ class MotorHandler:
         check if the motors with the provided ids are available
         if yes those motor are added to the list of motors managed by the handler
         :param idrange: range of motor id to check
-        :return: list of new motors
+        :return: list of new motors id
         """
         # self.delete_dead_motors()
         id_list = list(idrange)
@@ -371,6 +371,9 @@ class MotorHandler:
             return []
 
     def get_motor_id_in_order(self) -> list:
+        """
+        :return: List of motor id handle by this object in the order they will be processed
+        """
         return [motor.id for motor in self.motor_list]
 
     def disable(self):
@@ -405,10 +408,11 @@ class MotorHandler:
         """
         return self.distibute_max_speeds(np.full(len(self.motor_list), ang_speed, dtype=float))
 
-    def distibute_targets(self, angle_arr):
+    def distibute_targets(self, angle_arr: np.ndarray):
         """
-        Sends a list of target to corresponding motors
-        :param angle_arr: target angle array
+        From the input list, sends target to the motor with identical index in self.motor_list
+        see, self.get_motor_id_in_order to get the id corresponding to the index
+        :param angle_arr: target angle array or list
         :return: True if success
         """
         for index, my_motor in enumerate(self.motor_list):
@@ -417,7 +421,8 @@ class MotorHandler:
 
     def distibute_max_speeds(self, ang_speed_arr: np.ndarray):
         """
-        Sends a list of max speed to corresponding motors
+        From the input list, sends max speed to the motor with identical index in self.motor_list
+        see, self.get_motor_id_in_order to get the id corresponding to the index
         :param ang_speed_arr: max speed array
         :return: True if success
         """
@@ -450,6 +455,7 @@ class MotorHandler:
     def broadcast_target_on_time(self, angle: float, delta_time: float) -> bool:
         """
         all motors will reach the target angle in delta_time
+        see, self.get_motor_id_in_order to get the id corresponding to the index
         :param angle: target angle
         :param delta_time: time in sec to reach the target
         :return: True if success
@@ -460,7 +466,8 @@ class MotorHandler:
 
     def to_target_same_time(self, angle_arr: np.ndarray, delta_time: float) -> bool:
         """
-        all motors will reach their target angle from the array in delta_time
+        all motors will reach their target angle from the angle_arr in delta_time
+        see, self.get_motor_id_in_order to get the id corresponding to the index
         :param angle_arr: target angle array
         :param delta_time: time in sec to reach the target
         :return: True if success
@@ -471,6 +478,7 @@ class MotorHandler:
     def to_target_using_angle_time(self, angle_arr: np.ndarray, delta_time_arr: np.ndarray) -> bool:
         """
         all motors will reach their target angle in  the corresponding time in the delta_time_arr array
+        see, self.get_motor_id_in_order to get the id corresponding to the index
         :param angle_arr: target angle array
         :param delta_time_arr: array of time in sec to reach the target
         :return: True if success

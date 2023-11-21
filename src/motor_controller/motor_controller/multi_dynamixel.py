@@ -83,7 +83,9 @@ class CallbackHolder:
 
 
 class MultiDynamixel(Node):
-
+    """
+    Handles communication between ros2 and ONE u2d2 port with several dynamixel motors that can be plugged/unplugged
+    """
     def __init__(self):
         super().__init__(f'MultiDynamixel_node')
 
@@ -138,17 +140,25 @@ class MultiDynamixel(Node):
         time_to_search_all_id = 2
         search_delta_t = time_to_search_all_id/len(self.id_range)
 
+        ############   V Timers V
+        #   \  /   #
+        #    \/    #
         self.search_timer = self.create_timer(search_delta_t, self.search_for_next_motor, callback_group=grp1)
         self.delete_the_dead_timer = self.create_timer(2, self.delete_the_dead, callback_group=grp1)
-        self.move_dtime = 0.1
-        # self.move_timer = self.create_timer(self.move_dtime, self.wave_test, callback_group=grp1)
-        self.sin_amplitude = 0.5  # rad
-        self.sin_amplitude = min(self.sin_amplitude, 2 * np.pi)
-        self.sin_period = 5  # sec
-        self.last_index_checked = 0
-
         self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles, callback_group=grp1)
         self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
+        #    /\    #
+        #   /  \   #
+        ############   ^ Timers ^
+        # self.move_dtime = 0.1
+        # # self.move_timer = self.create_timer(self.move_dtime, self.wave_test, callback_group=grp1)
+        # self.sin_amplitude = 0.5  # rad
+        # self.sin_amplitude = min(self.sin_amplitude, 2 * np.pi)
+        # self.sin_period = 5  # sec
+        # self.last_index_checked = 0
+#
+        # self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles, callback_group=grp1)
+        # self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
         # self.last = 0
 
 

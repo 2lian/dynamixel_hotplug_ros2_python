@@ -165,29 +165,26 @@ class MultiDynamixel(Node):
     @error_catcher
     def send_writen_angles(self):
 
-        there_is_something_to_publish = False
+        something_to_publish = False
 
         for my_motor in self.controller.motor_list:
             corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
             if corresponding_cbk_holder.new_target_available:
 
-                if not there_is_something_to_publish: # new angle is here and there is work to be done
-                    self.refresh_and_publish_angles()
+                if not something_to_publish:  # bulk angle update should only be done once
+                    self.refresh_and_publish_angles()  # making this async would be good
                     self.refresh_and_publish_angle_timer.reset()
-                    there_is_something_to_publish = True
+                    something_to_publish = True
 
                 target_angle = corresponding_cbk_holder.target_angle
                 delta_time = corresponding_cbk_holder.target_time
-                delta_time = np.clip(delta_time, a_min=0.0001, a_max=None) # avoid division by zero and negative values
+                delta_time = np.clip(delta_time, a_min=0.0001, a_max=None)  # avoid division by zero and negative values
                 current_pos = self.curr_angle_dic[my_motor.id]
 
                 speed = abs((target_angle - current_pos) / delta_time)
                 my_motor.write_max_speed(speed)
 
-        if there_is_something_to_publish:
-            # now = time.time()
-            # self.get_logger().warning(f"{now - self.last:.2f}")
-            # self.last = now
+        if something_to_publish:
             self.controller.publish()
 
             for my_motor in self.controller.motor_list:

@@ -366,7 +366,7 @@ class MotorHandler:
         else:
             return []
 
-    def get_motor_id_in_order(self):
+    def get_motor_id_in_order(self) -> list:
         return [motor.id for motor in self.motor_list]
 
     def disable(self):
@@ -434,9 +434,15 @@ class MotorHandler:
         :return:
         """
         comm_success = self.request_update()
-        while comm_success and not self.all_positions_available():
+        while not self.all_positions_available() or not comm_success:
             comm_success = self.request_update()
-        return np.array([my_motor.get_position() for my_motor in self.motor_list], dtype=float)
+            if not comm_success:  # try twice
+                break
+        if comm_success:
+            return np.array([my_motor.get_position() for my_motor in self.motor_list], dtype=float)
+        else:
+            return np.full(len(self.motor_list), np.nan, dtype=float)
+
 
     def broadcast_target_on_time(self, angle: float, delta_time: float) -> bool:
         """

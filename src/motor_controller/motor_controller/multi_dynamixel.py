@@ -71,8 +71,13 @@ class CallbackHolder:
         self.write_target_time(angle, deltatime)
 
     def publish_current_angle(self):
+        angle = self.curr_angle_dic[self.motor_number]
+        if np.isnan(angle):
+            self.parent_node.get_logger().warning(f"Port {self.parent_node.UsbPortNumber} Motor {self.motor_number}: "
+                                                  f"Invalid angle (not published)")
+            return
         msg = Float64()
-        msg.data = self.curr_angle_dic[self.motor_number]
+        msg.data = angle
         self.pub.publish(msg)
         
 

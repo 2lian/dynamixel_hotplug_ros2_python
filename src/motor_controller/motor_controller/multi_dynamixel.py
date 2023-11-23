@@ -108,8 +108,8 @@ class MultiDynamixel(Node):
         ############   V ros2 parameters V
         #   \  /   #
         #    \/    #
-        self.declare_parameter('UsbPortNumber', 1)
-        self.UsbPortNumber = self.get_parameter('UsbPortNumber').get_parameter_value().integer_value
+        self.declare_parameter('UsbPort', '/dev/ttyUSB0')
+        self.UsbPort = self.get_parameter('UsbPort').get_parameter_value().string_value
 
         self.declare_parameter('Baudrate', 57_600)
         self.BAUDRATE = self.get_parameter('Baudrate').get_parameter_value().integer_value
@@ -122,13 +122,23 @@ class MultiDynamixel(Node):
         self.declare_parameter('IdRangeMax', 3)
         self.IdRangeMax = self.get_parameter('IdRangeMax').get_parameter_value().integer_value
         self.id_range = list(range(self.IdRangeMin, self.IdRangeMax + 1))
+
+        self.declare_parameter('FullScanPeriod', 2.0)
+        self.FullScanPeriod = self.get_parameter('FullScanPeriod').get_parameter_value().double_value
+        self.declare_parameter('CleanupPeriod', 2.0)
+        self.CleanupPeriod = self.get_parameter('CleanupPeriod').get_parameter_value().double_value
+        self.declare_parameter('AngleReadFreq', 10.0)
+        self.AngleReadFreq = self.get_parameter('IdRangeMax').get_parameter_value().double_value
+        self.declare_parameter('AngleWriteFreq', 50.0)
+        self.AngleWriteFreq = self.get_parameter('AngleReadFreq').get_parameter_value().double_value
+
         #    /\    #
         #   /  \   #
         ############   ^ ros2 parameters ^
 
         # Use the actual port assigned to the U2D2.
         # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
-        self.DEVICENAME = f'/dev/ttyUSB{self.UsbPortNumber}'
+        self.DEVICENAME = self.UsbPort
 
         self.PROTOCOL_VERSION = 2.0
 
@@ -152,17 +162,17 @@ class MultiDynamixel(Node):
         ############   ^ Service ^
         grp1 = MutuallyExclusiveCallbackGroup()
 
-        time_to_search_all_id = 2  # will loop over all searched motor id in this specified time in seconds
+        time_to_search_all_id = self.FullScanPeriod  # will loop over all searched motor id in this specified time in seconds
         search_delta_t = time_to_search_all_id / len(self.id_range)
 
         ############   V Timers V
         #   \  /   #
         #    \/    #
         self.search_timer = self.create_timer(search_delta_t, self.search_for_next_motor, callback_group=grp1)
-        self.delete_the_dead_timer = self.create_timer(2, self.delete_the_dead, callback_group=grp1)
-        self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles,
+        self.delete_the_dead_timer = self.create_timer(self.CleanupPeriod, self.delete_the_dead, callback_group=grp1)
+        self.refresh_and_publish_angle_timer = self.create_timer(1/self.AngleReadFreq, self.refresh_and_publish_angles,
                                                                  callback_group=grp1)
-        self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
+        self.send_writen_angles_timer = self.create_timer(1/self.AngleWriteFreq, self.send_writen_angles, callback_group=grp1)
         #    /\    #
         #   /  \   #
         ############   ^ Timers ^
@@ -170,10 +180,11 @@ class MultiDynamixel(Node):
     @error_catcher
     def send_writen_angles(self):
         """
-        Sends target angle held by the motor_cbk_holder(s) to the motors using bulkwrite
-        Targets are not sent on the callback of the AngleTime subscriber. Target are stored in the motor_cbk_holder
-        then all sent together by this function (running every X Hz).
-        This makes the subscriber asynchronous while the serial port stays synchronous and able to send data in bulk
+        Sends target angle held by the motor_cbk_holder(s) to the motors using bulkwrite.
+        Target are stored in the motor_cbk_holder as a buffer then all sent together by this function.
+        This makes the subscriber asynchronous while the serial port stays synchronous and able to send data in bulk.
+
+        Calling this function (in the event of a new target) will also refresh and publish the current motor position.
         :return:
         """
         something_to_publish = False

@@ -42,7 +42,7 @@ def error_catcher(func):
 
 class MotorCallbackHolder:
     """
-    Represents a single motor and its correnspondings callbacks
+    Represents a single motor and its corresponding callbacks
     """
     def __init__(self, motor_number: int,  MotorHandler, parent_node):
         self.motor_number = motor_number
@@ -50,10 +50,10 @@ class MotorCallbackHolder:
         self.parent_node = parent_node
 
         self.sub = self.parent_node.create_subscription(AngleTime,
-                                                        f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}",
+                                                        f"set_{self.parent_node.PortAlias}_mot_{self.motor_number}",
                                                         self.angle_time_cbk, 1, callback_group=ReentrantCallbackGroup())
         self.pub = self.parent_node.create_publisher(Float64,
-                                                     f"angle_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}",
+                                                     f"angle_{self.parent_node.PortAlias}_mot_{self.motor_number}",
                                                      10, callback_group=ReentrantCallbackGroup())
         self.new_target_available = False
         self.target_angle = None
@@ -89,7 +89,7 @@ class MotorCallbackHolder:
         """
         angle = self.current_angle
         if np.isnan(angle):
-            self.parent_node.get_logger().warning(f"Port {self.parent_node.UsbPortNumber} Motor {self.motor_number}: "
+            self.parent_node.get_logger().warning(f"Port {self.parent_node.PortAlias} Motor {self.motor_number}: "
                                                   f"Invalid angle (not published)")
             return
         msg = Float64()
@@ -97,19 +97,22 @@ class MotorCallbackHolder:
         self.pub.publish(msg)
 
 
-class MultiDynamixel(Node):
+class U2D2DynaController(Node):
     """
     Handles communication between ros2 and ONE u2d2 port with several dynamixel motors that can be plugged/unplugged
     """
 
     def __init__(self):
-        super().__init__(f'MultiDynamixel_node')
+        super().__init__(f'U2D2DynaController')
 
         ############   V ros2 parameters V
         #   \  /   #
         #    \/    #
         self.declare_parameter('UsbPort', '/dev/ttyUSB0')
         self.UsbPort = self.get_parameter('UsbPort').get_parameter_value().string_value
+
+        self.declare_parameter('PortAlias', '0')
+        self.PortAlias = self.get_parameter('PortAlias').get_parameter_value().string_value
 
         self.declare_parameter('Baudrate', 57_600)
         self.BAUDRATE = self.get_parameter('Baudrate').get_parameter_value().integer_value
@@ -156,7 +159,7 @@ class MultiDynamixel(Node):
         ############   V Service V
         #   \  /   #
         #    \/    #
-        self.iAmAlive = self.create_service(Empty, f'usb_{self.UsbPortNumber}_alive', lambda: None)
+        self.iAmAlive = self.create_service(Empty, f'usb_{self.PortAlias}_alive', lambda: None)
         #    /\    #
         #   /  \   #
         ############   ^ Service ^
@@ -236,7 +239,7 @@ class MultiDynamixel(Node):
             else:  # If unknown motor
                 motor_found = self.search_motors([id_to_check])
                 if motor_found:
-                    self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {motor_found} found :)")
+                    self.get_logger().warning(f"Port {self.PortAlias}: Motor {motor_found} found :)")
                     # then loops and tries next id
                 else:  # Terminates once a ping is unsuccessful
                     return
@@ -306,7 +309,7 @@ class MultiDynamixel(Node):
         """
         disconnected_motors = self.controller.delete_dead_motors()
         if disconnected_motors:
-            self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {disconnected_motors} lost")
+            self.get_logger().warning(f"Port {self.PortAlias}: Motor {disconnected_motors} lost")
             for motor_id in disconnected_motors:
                 self.delete_motor(motor_id)
 
@@ -336,12 +339,12 @@ class MultiDynamixel(Node):
             try:
                 opened = self.portHandler.openPort()
             except serial.serialutil.SerialException as e:
-                self.get_logger().warning(f'Port {self.UsbPortNumber}: Serial error on opening, port may not exist')
+                self.get_logger().warning(f'Port {self.PortAlias}: Serial error on opening, port may not exist')
             if opened:
-                self.get_logger().info(f"Port {self.UsbPortNumber}: opened :)")
+                self.get_logger().info(f"Port {self.PortAlias}: opened :)")
                 break
             else:
-                self.get_logger().warning(f"Port {self.UsbPortNumber}: failed to open", once=True)
+                self.get_logger().warning(f"Port {self.PortAlias}: failed to open", once=True)
             rate.sleep()
 
         while 1:  # Set port baudrate
@@ -361,15 +364,15 @@ class MultiDynamixel(Node):
 
         motor_found = self.search_motors(self.id_range)
         if motor_found:
-            self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {motor_found} found :)")
+            self.get_logger().warning(f"Port {self.PortAlias}: Motor {motor_found} found :)")
         else:
-            self.get_logger().warning(f"Port {self.UsbPortNumber}: NO MOTOR, but setup successful :)")
+            self.get_logger().warning(f"Port {self.PortAlias}: NO MOTOR, but setup successful :)")
 
 
 def main(args=None):
     rclpy.init()
 
-    node = MultiDynamixel()
+    node = U2D2DynaController()
     executor = rclpy.executors.SingleThreadedExecutor()
     executor.add_node(node)
 

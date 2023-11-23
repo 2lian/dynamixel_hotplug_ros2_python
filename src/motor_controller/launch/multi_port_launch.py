@@ -17,7 +17,7 @@ package_name = 'motor_controller'
 
 # Add the launch directory to the Python path to import the settings without rebuilding
 workspace_folder = get_package_share_directory(package_name)[:-len("/install/scare/share/scare")]
-directory_to_add = None
+directory_to_add = f"{get_package_share_directory(package_name)}/launch_files"
 directories_inside_of_build = [
     f"{get_package_share_directory(package_name)}/launch_files"
 ]
@@ -36,7 +36,7 @@ for directory in directories_to_try:
 # if directory_to_add is None:
 #     raise FileNotFoundError("launch_setting not found")
 if directory_to_add in directories_inside_of_build:
-    print("\nWARNING WARNING\nlaunch settings loaded from build folder, not source\nWARNING WARNING\n")
+    print("\nWARNING \nlaunch settings loaded from build folder, not source\nWARNING \n")
     time.sleep(1)
 
 sys.path.append(directory_to_add)
@@ -45,11 +45,12 @@ import launch_settings as setting_to_use
 port_controller = [Node(
     package=package_name,
     namespace='',  # Default namespace
-    executable='multi_dynamixel',
-    name=f'dxl_usb_{port[-1]}',
+    executable='u2d2_dyna_controller',
+    name=f'Dyna_{setting_to_use.PortAliasDic[port]}',
     arguments=['--ros-args', '--log-level', "info"],
     parameters=[{
         'UsbPort': port,
+        'PortAlias': setting_to_use.PortAliasDic[port],
         'IdRangeMin': setting_to_use.IdRangeMin, 'IdRangeMax': setting_to_use.IdRangeMax,
         'MotorSeries': setting_to_use.MotorSeries,
         'Baudrate': setting_to_use.Baudrate,
@@ -62,11 +63,11 @@ port_controller = [Node(
 nodeList = port_controller + [Node(
     package=package_name,
     namespace='',  # Default namespace
-    executable='moonbot_interface',
-    name=f'moonbot_interface',
+    executable='angle_remapper',
+    name=f'angle_remapper',
     arguments=['--ros-args', '--log-level', "info"],
     parameters=[{
-        'AngleUpdateRate': 20.0,
+        'TimeToReach': float(setting_to_use.TimeToReach),
     }]
 )]
 

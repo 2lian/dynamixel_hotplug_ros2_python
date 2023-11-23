@@ -28,8 +28,8 @@ setup(
     # set the shortcuts to run an executable.py, more specifically function of it
     entry_points={
         'console_scripts': [
-            f'multi_dynamixel = {package_name}.multi_dynamixel:main',
-            f'moonbot_interface = {package_name}.interface_for_moonbot:main',
+            f'u2d2_dyna_controller = {package_name}.u2d2_dyna_controller.py:main',
+            f'angle_remapper = {package_name}.angle_remapper.py:main',
 
         ],
     },

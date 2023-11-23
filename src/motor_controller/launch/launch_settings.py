@@ -1,6 +1,8 @@
 """
 Motors settings to be use by the launch file
-Made for the moonbot
+
+@author: Elian NEPPEL
+@laboratory: Moonshot, Space Robotic Lab, Tohoku University
 """
 
 # Baud-rate and motorID are motor specific, if you want to change it, use the dynamixel wizard
@@ -10,6 +12,11 @@ USB_u2d2_port_to_use = [f"/dev/ttyUSB{n}" for n in [0, 1, 2, 3, 4]]
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
 # use `ls /dev/ttyUSB*` to see which ports are active on linux
 # if you have only one u2d2 plugged in, you should see it assigned to `/dev/ttyUSB0`
+# see https://askubuntu.com/questions/1021547/writing-udev-rule-for-usb-device
+# to assign a fix name to a physical controller
+
+PortAliasDic = dict(zip(USB_u2d2_port_to_use, [f'port_{n}' for n in [0, 1, 2, 3, 4]]))
+# The alias will replace `f"/dev/ttyUSB{n}"` as the name of the port notably when creating node name and topics
 
 MotorSeries = "X_SERIES"
 # The motor series changes the adresses used on the serial port
@@ -25,8 +32,8 @@ Baudrate = 4_000_000
 # Default: 57_600, Pro series default: 1_000_000, Max: 4_000_000
 # if the baudrate is wrong motors won't be detected
 
-IdRangeMin = 1
-IdRangeMax = 3
+IdRangeMin = 1  # included
+IdRangeMax = 3  # included
 # defines the id range of the motors to detect
 # two motors CANNOT share the same id, it WILL bug
 
@@ -38,3 +45,7 @@ AngleReadFreq = 10  # Hz
 
 AngleWriteFreq = 100  # Hz
 # Freq at which the bulkwrite will send all new targets in the buffer to the motors
+
+TimeToReach = 1/20 + 0.1  # s
+# The mapper will consider that all target should be reached by this time
+# if you send new targets at 20Hz, 1/20 + 0.1 gives good results

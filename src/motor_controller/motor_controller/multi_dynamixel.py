@@ -23,10 +23,8 @@ import termios
 
 
 def error_catcher(func):
-    # This is a wrapper to catch and display exceptions
-    # Python exceptions don't work because of ros2's multithreading
+    # wrapper to catch and display exceptions in ros2 log
     # This func cannot be imported for some reasons
-    # No need to use it on the __init__ because this part is not threaded
     def wrap(*args, **kwargs):
         try:
             out = func(*args, **kwargs)
@@ -41,37 +39,55 @@ def error_catcher(func):
 
     return wrap
 
+
 class CallbackHolder:
-    def __init__(self, motor_number:int, curr_angle_dic:dict, MotorHandler, parent_node):
+    """
+    Represents a single motor and its correnspondings callbacks
+    """
+    def __init__(self, motor_number: int,  MotorHandler, parent_node):
         self.motor_number = motor_number
-        self.curr_angle_dic = curr_angle_dic
         self.MotorHandler = MotorHandler
         self.parent_node = parent_node
 
-        # self.sub = self.parent_node.create_subscription(Float64, f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", self.angle_cbk, 10)
-        self.sub = self.parent_node.create_subscription(AngleTime, f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", self.angle_time_cbk, 1, callback_group=ReentrantCallbackGroup())
-        self.pub = self.parent_node.create_publisher(Float64, f"angle_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}", 10, callback_group=ReentrantCallbackGroup())
+        self.sub = self.parent_node.create_subscription(AngleTime,
+                                                        f"set_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}",
+                                                        self.angle_time_cbk, 1, callback_group=ReentrantCallbackGroup())
+        self.pub = self.parent_node.create_publisher(Float64,
+                                                     f"angle_port_{self.parent_node.UsbPortNumber}_mot_{self.motor_number}",
+                                                     10, callback_group=ReentrantCallbackGroup())
         self.new_target_available = False
         self.target_angle = None
         self.target_time = None
-
+        self.current_angle = None
 
     def write_target_time(self, angle, deltatime):
+        """
+        Write the given target and time in the shared target dictionary
+        Those angle+time values are then applied by a timer in the main node
+        :param angle: angle to reach
+        :param deltatime: time to reach
+        :return:
+        """
         self.target_angle = angle
         self.target_time = deltatime
         self.new_target_available = True
 
-    def angle_cbk(self, msg):
-        angle = msg.data
-        self.write_target_time(angle, deltatime=1)
-
     def angle_time_cbk(self, msg):
+        """
+        Callback executed when a target angle+time arrives
+        :param msg: custom message AngleTime
+        :return:
+        """
         angle = msg.angle
         deltatime = msg.seconds
         self.write_target_time(angle, deltatime)
 
     def publish_current_angle(self):
-        angle = self.curr_angle_dic[self.motor_number]
+        """
+        Publishes the corresponding angle stored in the shared curr_angle_dic
+        :return:
+        """
+        angle = self.current_angle
         if np.isnan(angle):
             self.parent_node.get_logger().warning(f"Port {self.parent_node.UsbPortNumber} Motor {self.motor_number}: "
                                                   f"Invalid angle (not published)")
@@ -79,13 +95,13 @@ class CallbackHolder:
         msg = Float64()
         msg.data = angle
         self.pub.publish(msg)
-        
 
 
 class MultiDynamixel(Node):
     """
     Handles communication between ros2 and ONE u2d2 port with several dynamixel motors that can be plugged/unplugged
     """
+
     def __init__(self):
         super().__init__(f'MultiDynamixel_node')
 
@@ -124,7 +140,6 @@ class MultiDynamixel(Node):
         self.portHandler = None
         self.bypass_alive_check = False
 
-        self.curr_angle_dic = {}
         self.callback_holder_dic = {}
 
         ############   V Service V
@@ -138,14 +153,15 @@ class MultiDynamixel(Node):
         grp2 = MutuallyExclusiveCallbackGroup()
 
         time_to_search_all_id = 2
-        search_delta_t = time_to_search_all_id/len(self.id_range)
+        search_delta_t = time_to_search_all_id / len(self.id_range)
 
         ############   V Timers V
         #   \  /   #
         #    \/    #
         self.search_timer = self.create_timer(search_delta_t, self.search_for_next_motor, callback_group=grp1)
         self.delete_the_dead_timer = self.create_timer(2, self.delete_the_dead, callback_group=grp1)
-        self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles, callback_group=grp1)
+        self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles,
+                                                                 callback_group=grp1)
         self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
         #    /\    #
         #   /  \   #
@@ -156,15 +172,18 @@ class MultiDynamixel(Node):
         # self.sin_amplitude = min(self.sin_amplitude, 2 * np.pi)
         # self.sin_period = 5  # sec
         # self.last_index_checked = 0
-#
-        # self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles, callback_group=grp1)
-        # self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
-        # self.last = 0
 
+    #
+    # self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles, callback_group=grp1)
+    # self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
+    # self.last = 0
 
     @error_catcher
     def send_writen_angles(self):
+        """
 
+        :return:
+        """
         something_to_publish = False
 
         for my_motor in self.controller.motor_list:
@@ -179,7 +198,7 @@ class MultiDynamixel(Node):
                 target_angle = corresponding_cbk_holder.target_angle
                 delta_time = corresponding_cbk_holder.target_time
                 delta_time = np.clip(delta_time, a_min=0.0001, a_max=None)  # avoid division by zero and negative values
-                current_pos = self.curr_angle_dic[my_motor.id]
+                current_pos = corresponding_cbk_holder.current_angle
 
                 speed = abs((target_angle - current_pos) / delta_time)
                 my_motor.write_max_speed(speed)
@@ -197,7 +216,6 @@ class MultiDynamixel(Node):
                         corresponding_cbk_holder.new_target_available = False
 
             self.controller.publish()
-
 
     @error_catcher
     def search_for_next_motor(self):
@@ -229,16 +247,13 @@ class MultiDynamixel(Node):
 
     @error_catcher
     def add_new_motor(self, motor_id):
-        self.curr_angle_dic[motor_id] = None
-        self.callback_holder_dic[motor_id] = CallbackHolder(motor_number = motor_id,
-                                                            curr_angle_dic = self.curr_angle_dic, 
-                                                            MotorHandler = self.controller, 
-                                                            parent_node = self,
-        )
+        self.callback_holder_dic[motor_id] = CallbackHolder(motor_number=motor_id,
+                                                            MotorHandler=self.controller,
+                                                            parent_node=self,
+                                                            )
 
     @error_catcher
     def delete_motor(self, motor_id):
-        del self.curr_angle_dic[motor_id]
         self.destroy_subscription(self.callback_holder_dic[motor_id].sub)
         self.destroy_publisher(self.callback_holder_dic[motor_id].pub)
         del self.callback_holder_dic[motor_id]
@@ -247,8 +262,7 @@ class MultiDynamixel(Node):
     def refresh_all_current_angles(self):
         angle_arr = self.controller.get_angles()
         for arr_index, motor_id in enumerate(self.controller.get_motor_id_in_order()):
-            self.curr_angle_dic[motor_id] = angle_arr[arr_index]
-        # self.get_logger().warning(f"{self.curr_angle_dic}")
+            self.callback_holder_dic[motor_id].current_angle = angle_arr[arr_index]
 
     @error_catcher
     def refresh_and_publish_angles(self):

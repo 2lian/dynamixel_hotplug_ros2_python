@@ -66,10 +66,10 @@ if you want to add support to a new series
 - `Baudrate`: Needs to correspond to the baudrate of every motor on the USB controller. 
 Use the Dynamixel Wizard to change it on the motor.
 - `IdRangeMin; IdRangeMax`: The node will detect motors with IDs between those two values (included).  
-Two motors CANNOT share the same id when using connected on the same controller.
+Two motors CANNOT share the same id when using on the same controller.
 Use the Dynamixel Wizard to change the ID on the motor.
 
-Other setting in [src/launch/launch_settings.py](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py)
+Other settings in [src/launch/launch_settings.py](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py)
 should be changed according to your need.
 
 # Launch and use
@@ -128,7 +128,7 @@ and two programs cannot use the same port simultaneously.
 Hence, one single threaded Ros2 node is responsible for one serial port. This ensures single threaded access to the port.
 
 If several ports are used, each one has it own thread; thereby, several messages can be sent on DIFFERENT ports simultaneously.
-Hence, the launcher creates several nodes, each responsible for one port. 
+The launcher creates several nodes, each responsible for one port. 
 Each node runs in its own thread and can be called at any time in any order.
 
 

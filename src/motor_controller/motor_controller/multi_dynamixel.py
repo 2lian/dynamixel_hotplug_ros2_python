@@ -40,7 +40,7 @@ def error_catcher(func):
     return wrap
 
 
-class CallbackHolder:
+class MotorCallbackHolder:
     """
     Represents a single motor and its correnspondings callbacks
     """
@@ -139,8 +139,9 @@ class MultiDynamixel(Node):
         self.packetHandler = None
         self.portHandler = None
         self.bypass_alive_check = False
+        self.last_index_checked = 0
 
-        self.callback_holder_dic = {}
+        self.motor_cbk_holder_dict = {}
 
         ############   V Service V
         #   \  /   #
@@ -150,9 +151,8 @@ class MultiDynamixel(Node):
         #   /  \   #
         ############   ^ Service ^
         grp1 = MutuallyExclusiveCallbackGroup()
-        grp2 = MutuallyExclusiveCallbackGroup()
 
-        time_to_search_all_id = 2
+        time_to_search_all_id = 2  # will loop over all searched motor id in this specified time in seconds
         search_delta_t = time_to_search_all_id / len(self.id_range)
 
         ############   V Timers V
@@ -166,28 +166,20 @@ class MultiDynamixel(Node):
         #    /\    #
         #   /  \   #
         ############   ^ Timers ^
-        # self.move_dtime = 0.1
-        # # self.move_timer = self.create_timer(self.move_dtime, self.wave_test, callback_group=grp1)
-        # self.sin_amplitude = 0.5  # rad
-        # self.sin_amplitude = min(self.sin_amplitude, 2 * np.pi)
-        # self.sin_period = 5  # sec
-        # self.last_index_checked = 0
-
-    #
-    # self.refresh_and_publish_angle_timer = self.create_timer(0.1, self.refresh_and_publish_angles, callback_group=grp1)
-    # self.send_writen_angles_timer = self.create_timer(0.01, self.send_writen_angles, callback_group=grp1)
-    # self.last = 0
 
     @error_catcher
     def send_writen_angles(self):
         """
-
+        Sends target angle held by the motor_cbk_holder(s) to the motors using bulkwrite
+        Targets are not sent on the callback of the AngleTime subscriber. Target are stored in the motor_cbk_holder
+        then all sent together by this function (running every X Hz).
+        This makes the subscriber asynchronous while the serial port stays synchronous and able to send data in bulk
         :return:
         """
         something_to_publish = False
 
-        for my_motor in self.controller.motor_list:
-            corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
+        for my_motor in self.controller.motor_list:  # Prepare speed message
+            corresponding_cbk_holder = self.motor_cbk_holder_dict[my_motor.id]
             if corresponding_cbk_holder.new_target_available:
 
                 if not something_to_publish:  # bulk angle update should only be done once
@@ -204,10 +196,10 @@ class MultiDynamixel(Node):
                 my_motor.write_max_speed(speed)
 
         if something_to_publish:
-            self.controller.publish()
+            self.controller.publish()  # sends speed to motors
 
-            for my_motor in self.controller.motor_list:
-                corresponding_cbk_holder = self.callback_holder_dic[my_motor.id]
+            for my_motor in self.controller.motor_list:  # Prepare angle message
+                corresponding_cbk_holder = self.motor_cbk_holder_dict[my_motor.id]
 
                 if corresponding_cbk_holder.new_target_available:
                     target_angle = corresponding_cbk_holder.target_angle
@@ -215,30 +207,37 @@ class MultiDynamixel(Node):
                     if not comm_fail:
                         corresponding_cbk_holder.new_target_available = False
 
-            self.controller.publish()
+            self.controller.publish()  # sends angle to motors
 
     @error_catcher
     def search_for_next_motor(self):
         """
-        pings one id that belong to a not yet connected motor
+        Pings all ids with no associated motors until a ping is unsuccessful
+        Tries next id on the next call of the function
         :return:
         """
         list_of_alive_motors = self.controller.get_motor_id_in_order()
         for i in self.id_range:
             self.last_index_checked = (1 + self.last_index_checked) % len(self.id_range)
             id_to_check = self.id_range[self.last_index_checked]
-            if id_to_check in list_of_alive_motors:
-                pass  # will try the next id
-            else:
-                # pings the id and returns
+            if id_to_check in list_of_alive_motors:  # If known motor
+                pass  # loops and tries the next id
+            else:  # If unknown motor
                 motor_found = self.search_motors([id_to_check])
                 if motor_found:
                     self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {motor_found} found :)")
-                    self.search_for_next_motor()
-                return
+                    # then loops and tries next id
+                else:  # Terminates once a ping is unsuccessful
+                    return
 
     @error_catcher
     def search_motors(self, id_range: list):
+        """
+        Searches for motors with ids in the provided id_range
+        Then begins to handle them. The controller should automatically handle new motors found its own search
+        :param id_range:
+        :return:
+        """
         motor_found = self.controller.refresh_motors(id_range)
         if motor_found:
             for motor_id in motor_found:
@@ -247,31 +246,53 @@ class MultiDynamixel(Node):
 
     @error_catcher
     def add_new_motor(self, motor_id):
-        self.callback_holder_dic[motor_id] = CallbackHolder(motor_number=motor_id,
-                                                            MotorHandler=self.controller,
-                                                            parent_node=self,
-                                                            )
+        """
+        Motor with the id will have its callback holder created
+        :param motor_id:
+        :return:
+        """
+        self.motor_cbk_holder_dict[motor_id] = MotorCallbackHolder(motor_number=motor_id,
+                                                                   MotorHandler=self.controller,
+                                                                   parent_node=self,
+                                                                   )
 
     @error_catcher
     def delete_motor(self, motor_id):
-        self.destroy_subscription(self.callback_holder_dic[motor_id].sub)
-        self.destroy_publisher(self.callback_holder_dic[motor_id].pub)
-        del self.callback_holder_dic[motor_id]
+        """
+        Destroys pub sub and associated cbk holder to the motor id
+        :param motor_id:
+        :return:
+        """
+        self.destroy_subscription(self.motor_cbk_holder_dict[motor_id].sub)
+        self.destroy_publisher(self.motor_cbk_holder_dict[motor_id].pub)
+        del self.motor_cbk_holder_dict[motor_id]
 
     @error_catcher
     def refresh_all_current_angles(self):
+        """
+        Bulk reads angles of all motors connected, then stores tehm in the motor_cbk_holder
+        :return:
+        """
         angle_arr = self.controller.get_angles()
         for arr_index, motor_id in enumerate(self.controller.get_motor_id_in_order()):
-            self.callback_holder_dic[motor_id].current_angle = angle_arr[arr_index]
+            self.motor_cbk_holder_dict[motor_id].current_angle = angle_arr[arr_index]
 
     @error_catcher
     def refresh_and_publish_angles(self):
+        """
+        Bulk reads angles of all connected motors; stores and publishes (on ros2) all of the angles
+        :return:
+        """
         self.refresh_all_current_angles()
-        for cbk_holder in self.callback_holder_dic.values():
+        for cbk_holder in self.motor_cbk_holder_dict.values():
             cbk_holder.publish_current_angle()
 
     @error_catcher
     def delete_the_dead(self):
+        """
+        Stops the handling of motor that are considered dead by the controller
+        :return:
+        """
         disconnected_motors = self.controller.delete_dead_motors()
         if disconnected_motors:
             self.get_logger().warning(f"Port {self.UsbPortNumber}: Motor {disconnected_motors} lost")
@@ -279,22 +300,16 @@ class MultiDynamixel(Node):
                 self.delete_motor(motor_id)
 
     @error_catcher
-    def wave_test(self):
-        period = self.sin_period
-        x = (time.time() % period) / period * 2 * np.pi
-        angle = my_controller.wave(x) / (2 * np.pi) * self.sin_amplitude
-        angle += np.pi - self.sin_amplitude / 2
-        # print(angle)
-        comm_success = self.controller.broadcast_target_on_time(angle, self.move_dtime + 0.1)
-        if not comm_success:
-            self.delete_the_dead()
-
-    @error_catcher
     def close_port(self):
         self.portHandler.closePort()
 
     @error_catcher
     def connect_and_setup(self, delete_controller=True):
+        """
+        Open and connects to the serial port. Creates the corresponding MotorHandler. Scans for all motors.
+        :param delete_controller: force deletes the previous controller to not rely on the garbage collector
+        :return:
+        """
 
         rate = self.create_rate(1)
 

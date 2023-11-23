@@ -1,5 +1,5 @@
 """
-Motors settings to be use by the launch file
+Motors settings to be used by the launch file
 
 @author: Elian NEPPEL
 @laboratory: Moonshot, Space Robotic Lab, Tohoku University
@@ -11,9 +11,9 @@ USB_u2d2_port_to_use = [f"/dev/ttyUSB{n}" for n in [0, 1, 2, 3, 4]]
 # Use the actual port assigned to the U2D2.
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
 # use `ls /dev/ttyUSB*` to see which ports are active on linux
-# if you have only one u2d2 plugged in, you should see it assigned to `/dev/ttyUSB0`
+# if you have only one u2d2 plugged in, you should see it assigned to `/dev/ttyUSB0` and use `["/dev/ttyUSB{0}"]` here
 # see https://askubuntu.com/questions/1021547/writing-udev-rule-for-usb-device
-# to assign a fix name to a physical controller
+# to assign a fix path to a physical controller
 
 PortAliasDic = dict(zip(USB_u2d2_port_to_use, [f'port_{n}' for n in [0, 1, 2, 3, 4]]))
 # The alias will replace `f"/dev/ttyUSB{n}"` as the name of the port notably when creating node name and topics
@@ -38,7 +38,7 @@ IdRangeMax = 3  # included
 # two motors CANNOT share the same id, it WILL bug
 
 FullScanPeriod = 2  # seconds
-# will scan all ids in the idrange in 2 s
+# will scan all ids in 2 s
 
 AngleReadFreq = 10  # Hz
 # Freq at which the angles of all connected dynamixel is read and published on ros2

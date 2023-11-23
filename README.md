@@ -5,9 +5,88 @@ with hotplug capabilities (motor can be (dis)connected at runtime).
 
 - `multi_controller.py`: Custom python library to control multiple dynamixels connected to the same serial port 
 using velocity profile and bulk raed/write serial commands.
-- `multi_dynamixel.py`: Ros2 node (responsible for one single serial port) 
+- `u2d2_dyna_controller.py`: Ros2 node (responsible for one single serial port) 
 setting up the controller and providing ros2 subscribers/publisher.
-- `multi_port_launch.py`: Launches several nodes, one node per serial port, with the corresponding motor parameters.
+- `multi_port_launch.py`: Launches several nodes, one node per serial port, with the corresponding parameters.
+
+# Installation
+
+## Software
+
+Ros2 needs to be installed and working, this was made using Ros2 Foxy but should work with newer versions [(installation of Foxy)](https://docs.ros.org/en/foxy/Installation.html).
+
+Python dependencies:
+```bash
+python3 -m pip install numpy
+python3 -m pip install serial
+```
+
+Clone this repo and open it with:
+```bash
+git clone https://github.com/hubble14567/dynamixel_hotplug_ros2_python
+cd dynamixel_hotplug_ros2_python
+```
+
+Source ros2, build, and source the workspace with:
+```bash
+source opt/foxy/setup.bash
+colcon build --symlink-install
+. install/setup.bash
+```
+
+Launch the default configuration with:
+```bash
+ros2 launch src/motor_controller/launch/multi_port_launch.py
+```
+
+This may detect motors right away
+
+## Hardware / motors
+
+Ensure that your setup is properly working by trying out the
+[Dynamixel Wizard](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_wizard2/)
+and the [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/).
+This repo requires a minimum of knowledge to set up and should not be used as your first step.
+
+Using the dynamixel wizard, assign a unique motor ID to each motor connected to an usb controller. 
+Motor on different controllers can share the same ID. Also set the Baudrate of your motors
+
+# Setup
+
+All the setup can be done by changing [src/launch/launch_settings.py](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py)
+Those parameters will be passed along to ros2 and the nodes handling the dynamixels (no need to rebuild when changing this file)
+
+The following parameters needs to be properly modified in the file for this repo to work:
+- `USB_u2d2_port_to_use`: List of strings representing path to the USB ports to use. 
+One node per USB port will be spun up.
+Use `ls /dev/ttyUSB*` to see which ports are active on linux
+- `MotorSeries`: Series of dynamixel you are using. 
+Only the Xseries addresses are usable, update `motor_address_table` in multi_controller.py 
+if you want to add support to a new series
+- `Baudrate`: Needs to correspond to the baudrate of every motor on the USB controller. 
+Use the Dynamixel Wizard to change it on the motor.
+- `IdRangeMin; IdRangeMax`: The node will detect motors with IDs between those two values (included).  
+Two motors CANNOT share the same id when using connected on the same controller.
+Use the Dynamixel Wizard to change the ID on the motor.
+
+Other setting in [src/launch/launch_settings.py](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py)
+should be changed according to your need.
+
+# Launch and use
+
+Open this repo's workspace, source ros2, build, source the workspace and launch with:
+```bash
+cd dynamixel_hotplug_ros2_python
+source opt/foxy/setup.bash
+colcon build --symlink-install
+. install/setup.bash
+export RCUTILS_CONSOLE_OUTPUT_FORMAT="{message}"
+export RCUTILS_COLORIZED_OUTPUT=1
+ros2 launch src/motor_controller/launch/multi_port_launch.py
+```
+
+Messages should indicate which USB port is detecting which motor. 
+Unplugging and plugging motor should also display a message.
 
 # About
 ## Dynamixel Motors settings and connection
@@ -16,7 +95,7 @@ Several dynamixel can be plugged onto the same serial controller.
 The Dynamixel Wizard should be used beforehand to set a unique ID to each motor, and set the baud-rate of the motor.
 
 For the ros2 node, the motor id to look for, the baud-rate and usb port is set in the launcher `multi_port_launch.py`
-and loaded from `moonbot_setting.py`.
+and loaded from `launch_settings.py`.
 
 The node will continuously scan for new motors connected or disconnected on the port and react accordingly.
 You can plug motors while the node is running, start the node with no motors, or start the node with all motors, 

@@ -161,7 +161,7 @@ class Motor:
 
     def check_motor_alive(self, trial: int = 0) -> bool:
         """
-        Pings the motor 3 times (recursively) to check if it's alive
+        Pings the motor 1 times (recursively) to check if it's alive
         if motor is dead, self.alive is switched to False
         :param trial: number of time the motors has been pinged
         :return: True if motor is alive, else False
@@ -171,7 +171,7 @@ class Motor:
             print(f"after {trial} attempts ping successful, Motor {self.id:03d} Alive :)")
             self.alive = True
             return True
-        elif trial > 3:
+        elif trial > 0:
             print(f"Motor {self.id} is dead\n{self.packetHandler.getRxPacketError(dxl_error)}")
             self.alive = False
             return False
@@ -435,7 +435,7 @@ class MotorHandler:
         Ture, if each alive motor has resonded to their data resquest
         :return:
         """
-        return all([my_motor.position_available() or not my_motor.alive for my_motor in self.motor_list])
+        return all([(my_motor.position_available() or not my_motor.alive) for my_motor in self.motor_list])
 
     def get_angles(self) -> np.ndarray:
         """
@@ -443,10 +443,10 @@ class MotorHandler:
         :return:
         """
         comm_success = self.request_update()
-        while not self.all_positions_available() or not comm_success:
+        while not self.all_positions_available():
             comm_success = self.request_update()
-            if not comm_success:  # try twice
-                break
+            # if not comm_success:  # try twice
+            #     break
         if comm_success:
             return np.array([my_motor.get_position() for my_motor in self.motor_list], dtype=float)
         else:

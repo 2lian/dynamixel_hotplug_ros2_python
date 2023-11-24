@@ -59,6 +59,7 @@ class MotorCallbackHolder:
         self.target_angle = None
         self.target_time = None
         self.current_angle = None
+        self.last_valid_angle = None
 
     def write_target_time(self, angle, deltatime):
         """
@@ -111,10 +112,10 @@ class U2D2DynaController(Node):
         self.declare_parameter('UsbPort', '/dev/ttyUSB0')
         self.UsbPort = self.get_parameter('UsbPort').get_parameter_value().string_value
 
-        self.declare_parameter('PortAlias', '0')
+        self.declare_parameter('PortAlias', f'port_{self.UsbPort[-1]}')
         self.PortAlias = self.get_parameter('PortAlias').get_parameter_value().string_value
 
-        self.declare_parameter('Baudrate', 57_600)
+        self.declare_parameter('Baudrate', 4_000_000)
         self.BAUDRATE = self.get_parameter('Baudrate').get_parameter_value().integer_value
 
         self.declare_parameter('MotorSeries', "X_SERIES")
@@ -131,9 +132,9 @@ class U2D2DynaController(Node):
         self.declare_parameter('CleanupPeriod', 2.0)
         self.CleanupPeriod = self.get_parameter('CleanupPeriod').get_parameter_value().double_value
         self.declare_parameter('AngleReadFreq', 10.0)
-        self.AngleReadFreq = self.get_parameter('IdRangeMax').get_parameter_value().double_value
-        self.declare_parameter('AngleWriteFreq', 50.0)
-        self.AngleWriteFreq = self.get_parameter('AngleReadFreq').get_parameter_value().double_value
+        self.AngleReadFreq = self.get_parameter('AngleReadFreq').get_parameter_value().double_value
+        self.declare_parameter('AngleWriteFreq', 100.0)
+        self.AngleWriteFreq = self.get_parameter('AngleWriteFreq').get_parameter_value().double_value
 
         #    /\    #
         #   /  \   #
@@ -204,7 +205,7 @@ class U2D2DynaController(Node):
                 target_angle = corresponding_cbk_holder.target_angle
                 delta_time = corresponding_cbk_holder.target_time
                 delta_time = np.clip(delta_time, a_min=0.0001, a_max=None)  # avoid division by zero and negative values
-                current_pos = corresponding_cbk_holder.current_angle
+                current_pos = corresponding_cbk_holder.last_valid_angle
 
                 speed = abs((target_angle - current_pos) / delta_time)
                 my_motor.write_max_speed(speed)
@@ -289,7 +290,10 @@ class U2D2DynaController(Node):
         """
         angle_arr = self.controller.get_angles()
         for arr_index, motor_id in enumerate(self.controller.get_motor_id_in_order()):
-            self.motor_cbk_holder_dict[motor_id].current_angle = angle_arr[arr_index]
+            new_angle = angle_arr[arr_index]
+            self.motor_cbk_holder_dict[motor_id].current_angle = new_angle
+            if not np.isnan(new_angle):
+                self.motor_cbk_holder_dict[motor_id].last_valid_angle = new_angle
 
     @error_catcher
     def refresh_and_publish_angles(self):

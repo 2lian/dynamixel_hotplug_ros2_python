@@ -90,7 +90,7 @@ class AngleRemapper(Node):
         ############   V ros2 parameters V
         #   \  /   #
         #    \/    #
-        self.declare_parameter('TimeToReach', 10.0)
+        self.declare_parameter('TimeToReach', 1/20 + 0.1)
         self.TimeToReach = self.get_parameter('TimeToReach').get_parameter_value().double_value
         #    /\    #
         #   /  \   #
@@ -100,8 +100,8 @@ class AngleRemapper(Node):
         #   \  /   #
         #    \/    #
         for k in range(len(angle_mapping)):
-            higher_level_sub_name = set_mapping.keys()[k]
-            higher_level_pub_name = angle_mapping.keys()[k]
+            higher_level_sub_name = list(set_mapping.keys())[k]
+            higher_level_pub_name = list(angle_mapping.keys())[k]
             cbk_hldr_list.append(
                 JointCallbackHolder(higher_level_sub_name, higher_level_pub_name, self.TimeToReach, self)
             )

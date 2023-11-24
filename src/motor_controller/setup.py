@@ -13,8 +13,6 @@ setup(
         ('lib/python3.8/site-packages/python_package_include', glob(f'{package_name}/python_package_include/*.py')),
         ('lib/python3.8/site-packages/dynamixel_sdk',
          glob(f'{package_name}/python_package_include/dynamixel_sdk/*')),
-        ('share/' + package_name, glob('urdf/*')),
-        ('share/' + package_name, glob('meshes/*'))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -22,11 +20,10 @@ setup(
     maintainer_email='neppel.elian.s6@dc.tohoku.ac.jp',
     description='interfaces with the motors',
     license='Apache License 2.0',
-    # set the shortcuts to run an executable.py, more specifically function of it
     entry_points={
         'console_scripts': [
-            f'u2d2_dyna_controller = {package_name}.u2d2_dyna_controller.py:main',
-            f'angle_remapper = {package_name}.angle_remapper.py:main',
+            f'u2d2_dyna_controller = {package_name}.u2d2_dyna_controller:main',
+            f'angle_remapper = {package_name}.angle_remapper:main',
 
         ],
     },

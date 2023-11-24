@@ -85,8 +85,25 @@ export RCUTILS_COLORIZED_OUTPUT=1
 ros2 launch src/motor_controller/launch/multi_port_launch.py
 ```
 
+Without any changes, to the default settings [src/launch/launch_settings.py](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py); 
+this will: 
+- Launch 5 nodes for the ports [/dev/ttyUSB0, /dev/ttyUSB1, /dev/ttyUSB2, /dev/ttyUSB3, /dev/ttyUSB4]. 
+  - Each node looks for X_SERIES motors with the IDs [1,2,3] and baud-rate 4Mbps.
+  - All motor IDs are scanned every 2s.
+  - Current motor angle are read then published on `angle_port_X_mot_Y` at 10Hz
+  - A subscribers listens to the topic `set_port_X_mot_Y` with messages containing 'angle' `float64` and 'seconds' `float64`.
+  At 100Hz it sends the command to the motor to reach the 'angle' in the time 'seconds' by moving at a constant speed.
+- The node angle_remapper 
+  - Converts topics names according to the table inside topic_remapping.py
+  - Subscribes to topics containing only 'angle' `set_joint_{0}_{0}_real` then repeats onto `set_port_X_mot_Y` 
+using 'angle' and always the same value for 'seconds'.
+
 Messages should indicate which USB port is detecting which motor. 
 Unplugging and plugging motor should also display a message.
+
+```bash
+
+```
 
 # About
 ## Dynamixel Motors settings and connection

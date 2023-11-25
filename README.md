@@ -4,12 +4,24 @@ This repo provides python libraries and ros2 nodes to control several dynamixels
 with hotplug capabilities (motor can be (dis)connected at runtime).
 
 - `multi_controller.py`: Custom python library to control multiple dynamixels connected to the same serial port 
-using velocity profile and bulk raed/write serial commands.
+using velocity profile and bulk read/write serial commands. Provides new motor detection functions, 
+bulk read/write for angle and speed, automatically handles unresponsive motors.
 - `u2d2_dyna_controller.py`: Ros2 node (responsible for one single serial port) 
-setting up the controller and providing ros2 subscribers/publisher.
-- `multi_port_launch.py`: Launches several nodes, one node per serial port, with the corresponding parameters.
+setting up the above-mentioned controller and ros2 timer for periodic motor scanning; 
+providing ros2 subscribers/publisher as a simple interface.
+  - **[Publisher]** Current angle of the motor
+    - topic: `angle_port_X_mot_Y`
+    - message: `std_msgs/msg/Float64`
+  - **[Subscriber]** Target angle and time to reach the target (using constant speed velocity profile of the dynamixel  
+to generate smooth motion)
+    - topic: `set_port_X_mot_Y`
+    - message: `dyna_controller_messages/msg/AngleTime` (target in rad and time in seconds)
+- `angle_remapper.py`: Maps topics of `u2d2_dyna_controller.py` onto other topics (such as leg 3 joint 0, instead of port 2 motor 5) 
+using only `std_msgs/msg/Float64` for the target angle and a fix time to reach the target.
+- `multi_port_launch.py`: Launches several nodes, one node per serial port and the remapper, 
+with the corresponding parameters in `launch_settings.py`.
 
-Youtube video:
+Youtube demo:
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=wYH8rg-nyjc" target="_blank">
  <img src="http://img.youtube.com/vi/wYH8rg-nyjc/mqdefault.jpg" alt="Watch the video" width="576" height="324" border="10" />
@@ -72,20 +84,26 @@ if you want to add support to a new series
 - `Baudrate`: Needs to correspond to the baudrate of every motor on the USB controller. 
 Use the Dynamixel Wizard to change it on the motor.
 - `IdRangeMin; IdRangeMax`: The node will detect motors with IDs between those two values (included).  
-Two motors CANNOT share the same id when using on the same controller.
-Use the Dynamixel Wizard to change the ID on the motor.
+Two motors CANNOT share the same id on the same controller.
+Use the Dynamixel Wizard to change the ID of the motor.
 
 Other settings in [src/launch/launch_settings.py](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py)
 should be changed according to your need.
 
 # Launch and use
 
-Open this repo's workspace, source ros2, build, source the workspace and launch with:
+Open this repo's workspace, 
 ```bash
-cd dynamixel_hotplug_ros2_python
+cd ~/dynamixel_hotplug_ros2_python
+```
+source ros2, build, source the workspace
+```bash
 source opt/foxy/setup.bash
 colcon build --symlink-install
 . install/setup.bash
+```
+and launch with:
+```bash
 export RCUTILS_CONSOLE_OUTPUT_FORMAT="{message}"
 export RCUTILS_COLORIZED_OUTPUT=1
 ros2 launch src/motor_controller/launch/multi_port_launch.py
@@ -93,32 +111,55 @@ ros2 launch src/motor_controller/launch/multi_port_launch.py
 
 Without any changes, to the default settings [src/launch/launch_settings.py](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py); 
 this will: 
-- Launch 5 nodes for the ports [/dev/ttyUSB0, /dev/ttyUSB1, /dev/ttyUSB2, /dev/ttyUSB3, /dev/ttyUSB4]. 
-  - Each node looks for X_SERIES motors with the IDs [1,2,3] and baud-rate 4Mbps.
+- Launch 5 nodes for the ports [`/dev/ttyUSB0`, `/dev/ttyUSB1`, `/dev/ttyUSB2`, `/dev/ttyUSB3`, `/dev/ttyUSB4`]:
+  - Each node looks for X_SERIES motors with the IDs [`1`, `2`, `3`] and baud-rate `4Mbps`.
   - All motor IDs are scanned every 2s.
-  - Current motor angle are read then published on `angle_port_X_mot_Y` at 10Hz
-  - A subscribers listens to the topic `set_port_X_mot_Y` with messages containing 'angle' `float64` and 'seconds' `float64`.
-  At 100Hz it sends the command to the motor to reach the 'angle' in the time 'seconds' by moving at a constant speed.
-- The node angle_remapper 
-  - Converts topics names according to the table inside topic_remapping.py
-  - Subscribes to topics containing only 'angle' `set_joint_{0}_{0}_real` then repeats onto `set_port_X_mot_Y` 
-using 'angle' and always the same value for 'seconds'.
+  - Current motor angles are read then published on `angle_port_X_mot_Y` at 10Hz.
+  - A subscribers listens to the topic `set_port_X_mot_Y` with messages containing 'angle' `Float64` and 'seconds' `Float64`.
+  At 100Hz, it sends the command to the motor to reach the 'angle' in the time 'seconds' by moving at a constant speed.
+  - Those subscriber and publishers are created/deleted when a motor is connected/disconnected
+- The node angle_remapper:
+  - Converts topics names according to the table inside `topic_remapping.py`. Modify this file according to your needs.
+  - Only uses standard `Float64` messages.
+  - Subscribes to topics `set_joint_A_B_real` transmitting only angle (as `data: Float64`), then repeats onto `set_port_X_mot_Y` 
+using 'angle' and always the same fix value for 'seconds'.
 
-Messages should indicate which USB port is detecting which motor. 
+Terminal log should indicate which USB port is working and detecting which motor. 
 Unplugging and plugging motor should also display a message.
 
-```bash
+# Commands example
+## Controller node
 
-```
+Listen to port 1 motor 1's angle
+````bash
+ros2 topic echo /angle_port_1_mot_1
+````
+
+Commands port 1 motor 1 to go to angle 0 in 3 seconds: 
+````bash
+ros2 topic pub /set_port_1_mot_1 dyna_controller_messages/msg/AngleTime "{angle: 0.0, seconds: 3.0}" -1
+````
+
+Commands port 1 motor 1 to go to angle 1 rad in 3 seconds:
+````bash
+ros2 topic pub /set_port_1_mot_1 dyna_controller_messages/msg/AngleTime "{angle: 1.0, seconds: 3.0}" -1
+````
+
+## Remapper node
+
+Commands joint 1_0 to go to angle 0 in the time specified in launch setting (default is 0.15s).
+According to the default remapping (topic_remapping.py) joint 1_0 corresponds to port 1 motor 1.
+````bash
+ros2 topic pub /set_joint_1_0_real std_msgs/msg/Float64 "{data: 0.0}" -1
+````
+
+Current angles of port 1, motor 1 can also be listend to after the remapping
+````bash
+ros2 topic echo /angle_1_0
+````
 
 # About
 ## Dynamixel Motors settings and connection
-
-Several dynamixel can be plugged onto the same serial controller. 
-The Dynamixel Wizard should be used beforehand to set a unique ID to each motor, and set the baud-rate of the motor.
-
-For the ros2 node, the motor id to look for, the baud-rate and usb port is set in the launcher `multi_port_launch.py`
-and loaded from `launch_settings.py`.
 
 The node will continuously scan for new motors connected or disconnected on the port and react accordingly.
 You can plug motors while the node is running, start the node with no motors, or start the node with all motors, 

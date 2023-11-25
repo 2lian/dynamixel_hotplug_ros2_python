@@ -31,7 +31,7 @@ Youtube demo:
 # Why ?
 
 This is mainly aimed at student in my/your lab that do not have the time, nor need, to learn the intricacies of Ros2, serial, and C++:
-- Python is easier to understand than the [currently available Ros2 in C++](https://github.com/dynamixel-community/dynamixel_hardware)
+- Python is easier to understand than the [currently available Ros2 in C++.](https://github.com/dynamixel-community/dynamixel_hardware)
 Therefor modifications, additions and debugging are easy; and close to the serial interface.
 - Only standard subscribers/publishers are needed, no need to learn Ros2's Action to only send an angle.
 - Hotplug capabilities

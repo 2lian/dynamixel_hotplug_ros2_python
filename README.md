@@ -81,6 +81,7 @@ to generate smooth motion)
 using only `std_msgs/msg/Float64` for the target angle and a fix time to reach the target.
 - `multi_port_launch.py`: Launches several nodes, one node per serial port and the remapper, 
 with the corresponding parameters in `launch_settings.py`.
+- `/dyna_controller_messages`: package containing the custom TimeAngle message (`angle: Float64`, `seconds: Float64`).
 
 # Setup
 
@@ -137,8 +138,8 @@ this will:
   - Subscribes to topics `set_joint_A_B_real` transmitting only angle (as `data: Float64`), then repeats onto `set_port_X_mot_Y` 
 using 'angle' and always the same fix value for 'seconds'.
 
-Terminal log should indicate which USB port is working and detecting which motor. 
-Unplugging and plugging motor should also display a message.
+Terminal log should indicate which USB port is working and detect motors. 
+Unplugging and plugging motors should also display a message.
 
 # Commands example
 ## Controller node

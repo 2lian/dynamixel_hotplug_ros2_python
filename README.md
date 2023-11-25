@@ -172,6 +172,13 @@ ros2 topic echo /angle_1_0
 ````
 
 # About
+## Contact
+
+This repo was made by Elian NEPPEL, in the context of the Moonshot project, 
+in the [Space Robotics Lab](https://github.com/Space-Robotics-Laboratory) of the University of Tohoku Japan. 
+
+Please create GitHub issues, fork and pull request if you want to contribute to this repo.
+
 ## Dynamixel Motors settings and connection
 
 The node will continuously scan for new motors connected or disconnected on the port and react accordingly.

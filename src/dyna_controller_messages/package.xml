@@ -4,7 +4,7 @@
   <name>dyna_controller_messages</name>
   <version>0.0.0</version>
   <description>Package only containing custom messages for ros2</description>
-  <maintainer email="neppel.elian.s6@dc.tohoku.ac.jp">Elian_NEPPEL</maintainer>
+  <maintainer email="example@dc.tohoku.ac.jp">Elian_NEPPEL</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

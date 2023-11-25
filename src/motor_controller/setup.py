@@ -17,7 +17,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Elian_NEPPEL',
-    maintainer_email='neppel.elian.s6@dc.tohoku.ac.jp',
+    maintainer_email='example@dc.tohoku.ac.jp',
     description='interfaces with the motors',
     license='Apache License 2.0',
     entry_points={

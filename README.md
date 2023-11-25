@@ -1,7 +1,7 @@
 # Simple Dynamixel Motor Ros2 package using Pyhton, Hotplug capable
 
 This repo provides python libraries and ros2 nodes to control several dynamixels on several u2d2 interfaces 
-with hotplug capabilities (motor can be (dis)connected at runtime). Commands supported are anglular commands with a 
+with hotplug capabilities (motor can be (dis)connected at runtime). Commands supported are angular commands with a 
 deltatime specifying the time the motor will take to reach the targeted angle.
 
 - `multi_controller.py`: Custom python library to control multiple dynamixels connected to the same serial port 
@@ -39,6 +39,9 @@ Therefor modifications, additions and debugging are easy; and close to the seria
 ## Software
 
 Ros2 needs to be installed and working, this was made using Ros2 Foxy but should work with newer versions [(installation of Foxy)](https://docs.ros.org/en/foxy/Installation.html).
+
+The Python [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/) is already
+included inside this repo.
 
 Python dependencies:
 ```bash

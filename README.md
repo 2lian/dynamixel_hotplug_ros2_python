@@ -215,14 +215,3 @@ Hence, one single threaded Ros2 node is responsible for one serial port. This en
 If several ports are used, each one has it own thread; thereby, several messages can be sent on DIFFERENT ports simultaneously.
 The launcher creates several nodes, each responsible for one port. 
 Each node runs in its own thread and can be called at any time in any order.
-
-
-
-[//]: # (connecting usbv through WSL https://devblogs.microsoft.com/commandline/connecting-usb-devices-to-wsl/)
-
-[//]: # ()
-[//]: # (```bash)
-
-[//]: # (usbipd wsl attach --busid 3-2)
-
-[//]: # (```)

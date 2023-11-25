@@ -9,11 +9,11 @@ using velocity profile and bulk raed/write serial commands.
 setting up the controller and providing ros2 subscribers/publisher.
 - `multi_port_launch.py`: Launches several nodes, one node per serial port, with the corresponding parameters.
 
-{% include youtube.html id="JLMbpiywVxQ" %}
-
 Youtube video:
 
-[![Watch the video](https://img.youtube.com/vi/wYH8rg-nyjc/hqdefault.jpg)](https://www.youtube.com/watch?v=wYH8rg-nyjc)
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=wYH8rg-nyjc" target="_blank">
+ <img src="http://img.youtube.com/vi/wYH8rg-nyjc/mqdefault.jpg" alt="Watch the video" width="240" height="180" border="10" />
+</a>
 
 # Installation
 

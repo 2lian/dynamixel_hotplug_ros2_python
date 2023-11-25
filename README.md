@@ -10,6 +10,7 @@ setting up the controller and providing ros2 subscribers/publisher.
 - `multi_port_launch.py`: Launches several nodes, one node per serial port, with the corresponding parameters.
 
 Youtube video:
+
 [![Watch the video](https://img.youtube.com/vi/wYH8rg-nyjc/hqdefault.jpg)](https://www.youtube.com/watch?v=wYH8rg-nyjc)
 
 # Installation

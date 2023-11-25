@@ -1,7 +1,9 @@
-# Dynamixel Motor Ros2 package using Pyhton, Hotplug capable
+# Simple Dynamixel Motor Ros2 package using Pyhton, Hotplug capable
+## Send an angle target and a deltatime to your Dynamixel!
 
 This repo provides python libraries and ros2 nodes to control several dynamixels on several u2d2 interfaces 
-with hotplug capabilities (motor can be (dis)connected at runtime).
+with hotplug capabilities (motor can be (dis)connected at runtime). Commands supported are anglular commands with a 
+deltatime specifying the time the motor will take to reach the targeted angle.
 
 - `multi_controller.py`: Custom python library to control multiple dynamixels connected to the same serial port 
 using velocity profile and bulk read/write serial commands. Provides new motor detection functions, 
@@ -26,6 +28,14 @@ Youtube demo:
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=wYH8rg-nyjc" target="_blank">
  <img src="http://img.youtube.com/vi/wYH8rg-nyjc/mqdefault.jpg" alt="Watch the video" width="576" height="324" border="10" />
 </a>
+
+# Why ?
+
+This is mainly aimed at student in my/your lab that do not have the time, nor need, to learn the intricacies of Ros2, serial, and C++:
+- Python is easier to understand than the [currently available Ros2 in C++](https://github.com/dynamixel-community/dynamixel_hardware)
+Therefor modifications, additions and debugging are easy; and close to the serial interface.
+- Only standard subscribers/publishers are needed, no need to learn Ros2's Action to only send an angle.
+- Hotplug capabilities
 
 # Installation
 

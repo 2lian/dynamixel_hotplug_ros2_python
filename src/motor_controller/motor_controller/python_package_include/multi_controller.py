@@ -17,7 +17,6 @@ The controller object
 
 @author: Elian NEPPEL
 @laboratory: Moonshot, Space Robotic Lab, Tohoku University
-
 """
 
 import os

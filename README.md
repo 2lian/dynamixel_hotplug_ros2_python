@@ -4,24 +4,6 @@ This repo provides python libraries and ros2 nodes to control several dynamixels
 with hotplug capabilities (motor can be (dis)connected at runtime). Commands supported are angular commands with a 
 deltatime specifying the time the motor will take to reach the targeted angle.
 
-- `multi_controller.py`: Custom python library to control multiple dynamixels connected to the same serial port 
-using velocity profile and bulk read/write serial commands. Provides new motor detection functions, 
-bulk read/write for angle and speed, automatically handles unresponsive motors.
-- `u2d2_dyna_controller.py`: Ros2 node (responsible for one single serial port) 
-setting up the above-mentioned controller and ros2 timer for periodic motor scanning; 
-providing ros2 subscribers/publisher as a simple interface.
-  - **[Publisher]** Current angle of the motor
-    - topic: `angle_port_X_mot_Y`
-    - message: `std_msgs/msg/Float64`
-  - **[Subscriber]** Target angle and time to reach the target (using constant speed velocity profile of the dynamixel  
-to generate smooth motion)
-    - topic: `set_port_X_mot_Y`
-    - message: `dyna_controller_messages/msg/AngleTime` (target in rad and time in seconds)
-- `angle_remapper.py`: Maps topics of `u2d2_dyna_controller.py` onto other topics (such as leg 3 joint 0, instead of port 2 motor 5) 
-using only `std_msgs/msg/Float64` for the target angle and a fix time to reach the target.
-- `multi_port_launch.py`: Launches several nodes, one node per serial port and the remapper, 
-with the corresponding parameters in `launch_settings.py`.
-
 Youtube demo:
 
 [![play](https://github.com/hubble14567/dynamixel_hotplug_ros2_python/assets/70491689/f09b3d37-5e9f-4bf2-a7b8-6e3cc826d8ec)](https://youtu.be/wYH8rg-nyjc?si=Y7OECKDYGS__NSSk)
@@ -78,6 +60,27 @@ This repo requires a minimum of knowledge to set up and should not be used as yo
 
 Using the dynamixel wizard, assign a unique motor ID to each motor connected to an usb controller. 
 Motor on different controllers can share the same ID. Also set the Baudrate of your motors
+
+# Important files and their functions
+
+
+- `multi_controller.py`: Custom python library to control multiple dynamixels connected to the same serial port 
+using velocity profile and bulk read/write serial commands. Provides new motor detection functions, 
+bulk read/write for angle and speed, automatically handles unresponsive motors.
+- `u2d2_dyna_controller.py`: Ros2 node (responsible for one single serial port) 
+setting up the above-mentioned controller and ros2 timer for periodic motor scanning; 
+providing ros2 subscribers/publisher as a simple interface.
+  - **[Publisher]** Current angle of the motor
+    - topic: `angle_port_X_mot_Y`
+    - message: `std_msgs/msg/Float64`
+  - **[Subscriber]** Target angle and time to reach the target (using constant speed velocity profile of the dynamixel  
+to generate smooth motion)
+    - topic: `set_port_X_mot_Y`
+    - message: `dyna_controller_messages/msg/AngleTime` (target in rad and time in seconds)
+- `angle_remapper.py`: Maps topics of `u2d2_dyna_controller.py` onto other topics (such as leg 3 joint 0, instead of port 2 motor 5) 
+using only `std_msgs/msg/Float64` for the target angle and a fix time to reach the target.
+- `multi_port_launch.py`: Launches several nodes, one node per serial port and the remapper, 
+with the corresponding parameters in `launch_settings.py`.
 
 # Setup
 

@@ -12,7 +12,7 @@ setting up the controller and providing ros2 subscribers/publisher.
 Youtube video:
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=wYH8rg-nyjc" target="_blank">
- <img src="http://img.youtube.com/vi/wYH8rg-nyjc/mqdefault.jpg" alt="Watch the video" width="240" height="180" border="10" />
+ <img src="http://img.youtube.com/vi/wYH8rg-nyjc/mqdefault.jpg" alt="Watch the video" width="576" height="324" border="10" />
 </a>
 
 # Installation

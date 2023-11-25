@@ -24,9 +24,7 @@ with the corresponding parameters in `launch_settings.py`.
 
 Youtube demo:
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=wYH8rg-nyjc" target="_blank">
- <img src="http://img.youtube.com/vi/wYH8rg-nyjc/mqdefault.jpg" alt="Watch the video" width="576" height="324" border="10" />
-</a>
+[![play](https://github.com/hubble14567/dynamixel_hotplug_ros2_python/assets/70491689/f09b3d37-5e9f-4bf2-a7b8-6e3cc826d8ec)](https://youtu.be/wYH8rg-nyjc?si=Y7OECKDYGS__NSSk)
 
 # Why ?
 

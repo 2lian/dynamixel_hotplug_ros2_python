@@ -173,7 +173,7 @@ class U2D2DynaController(Node):
         #   \  /   #
         #    \/    #
         self.search_timer = self.create_timer(search_delta_t, self.search_for_next_motor, callback_group=grp1)
-        self.delete_the_dead_timer = self.create_timer(self.CleanupPeriod, self.delete_the_dead, callback_group=grp1)
+        self.delete_the_dead_timer = self.create_timer(self.CleanupPeriod, self.clean_dead_motors, callback_group=grp1)
         self.refresh_and_publish_angle_timer = self.create_timer(1/self.AngleReadFreq, self.refresh_and_publish_angles,
                                                                  callback_group=grp1)
         self.send_writen_angles_timer = self.create_timer(1/self.AngleWriteFreq, self.send_writen_angles, callback_group=grp1)
@@ -306,7 +306,7 @@ class U2D2DynaController(Node):
             cbk_holder.publish_current_angle()
 
     @error_catcher
-    def delete_the_dead(self):
+    def clean_dead_motors(self):
         """
         Stops the handling of motor that are considered dead by the controller
         :return:

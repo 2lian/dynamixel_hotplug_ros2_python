@@ -517,7 +517,7 @@ class MotorHandler:
         if not self.motor_list:
             return True
 
-        self.delete_dead_motors()  # because unresponsive motors make the whole read fail
+        # self.delete_dead_motors()  # because unresponsive motors make the whole read fail
         dxl_comm_result = self.groupBulkRead.txRxPacket()
         if dxl_comm_result != COMM_SUCCESS:
             print("Request_update failed")

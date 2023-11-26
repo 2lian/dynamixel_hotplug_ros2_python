@@ -1,4 +1,4 @@
-# Simple Dynamixel Motor Ros2 package using Pyhton, Hotplug capable
+# Simple Dynamixel Motor Ros2 package using Python, Hotplug capable
 
 This repo provides python libraries and ros2 nodes to control several dynamixels on several u2d2 interfaces 
 with hotplug capabilities (motor can be (dis)connected at runtime). Commands supported are angular commands with a 

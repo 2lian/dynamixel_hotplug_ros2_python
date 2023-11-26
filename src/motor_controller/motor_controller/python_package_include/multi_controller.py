@@ -170,7 +170,7 @@ class Motor:
             print(f"after {trial} attempts ping successful, Motor {self.id:03d} Alive :)")
             self.alive = True
             return True
-        elif trial > 0:
+        elif trial > 1:
             print(f"Motor {self.id} is dead\n{self.packetHandler.getRxPacketError(dxl_error)}")
             self.alive = False
             return False
@@ -231,13 +231,13 @@ class Motor:
         The position has been returned and the data is available
         :return:
         """
-        dxl_getdata_result = self.groupBulkRead.isAvailable(self.id,
+        result_available = self.groupBulkRead.isAvailable(self.id,
                                                             self.addr_table["ADDR_PRESENT_POSITION"],
                                                             self.addr_table["LEN_PRESENT_POSITION"])
-        if dxl_getdata_result != True:
-            print(f"[ID:{self.id:03d}] position_available failed\n{dxl_getdata_result}")
+        if not result_available:
+            print(f"[ID:{self.id:03d}] position_available failed\n{result_available}")
             self.check_motor_alive()
-        return dxl_getdata_result
+        return result_available
 
     def get_position(self) -> float:
         """

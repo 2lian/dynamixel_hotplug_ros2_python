@@ -232,18 +232,22 @@ class U2D2DynaController(Node):
         :return:
         """
         list_of_alive_motors = self.controller.get_motor_id_in_order()
+        id_found_list = []
         for i in self.id_range:
             self.last_index_checked = (1 + self.last_index_checked) % len(self.id_range)
             id_to_check = self.id_range[self.last_index_checked]
             if id_to_check in list_of_alive_motors:  # If known motor
                 pass  # loops and tries the next id
             else:  # If unknown motor
-                motor_found = self.search_motors([id_to_check])
-                if motor_found:
-                    self.get_logger().warning(f"Port {self.PortAlias}: Motor {motor_found} found :)")
+                motor_found_list = self.search_motors([id_to_check])
+                if motor_found_list:  # if list not empty
+                    id_found_list.append(motor_found_list[0])
                     # then loops and tries next id
-                else:  # Terminates once a ping is unsuccessful
-                    return
+                else:  # List empty: so it terminates once a ping is unsuccessful
+                    break
+        if id_found_list:  # if one motor in the list, we log
+            self.get_logger().warning(f"Port {self.PortAlias}: Motor {id_found_list} found :)")
+        return
 
     @error_catcher
     def search_motors(self, id_range: list):

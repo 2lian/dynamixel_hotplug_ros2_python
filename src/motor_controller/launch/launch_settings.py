@@ -33,7 +33,7 @@ Baudrate = 4_000_000
 # if the baudrate is wrong motors won't be detected
 
 IdRangeMin = 1  # included
-IdRangeMax = 3  # included
+IdRangeMax = 6  # included
 # defines the id range of the motors to detect
 # two motors CANNOT share the same id, it WILL bug
 

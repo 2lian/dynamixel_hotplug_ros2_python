@@ -158,7 +158,7 @@ class Motor:
     def raw2rad(self, raw: int) -> float:
         return (raw - self.minraw) / (self.maxraw - self.minraw) * (2 * np.pi) - np.pi
 
-    def check_motor_alive(self, trial: int = 0) -> bool:
+    def check_motor_alive(self, trial: int = 2) -> bool:
         """
         Pings the motor 1 times (recursively) to check if it's alive
         if motor is dead, self.alive is switched to False
@@ -170,12 +170,12 @@ class Motor:
             print(f"after {trial} attempts ping successful, Motor {self.id:03d} Alive :)")
             self.alive = True
             return True
-        elif trial > 1:
-            print(f"Motor {self.id} is dead\n{self.packetHandler.getRxPacketError(dxl_error)}")
+        elif trial <= 1:
+            print(f"Motor {self.id} is dead {self.packetHandler.getRxPacketError(dxl_error)}")
             self.alive = False
             return False
         else:
-            return self.check_motor_alive(trial + 1)
+            return self.check_motor_alive(trial - 1)
 
     def enable(self) -> None:
         """
@@ -434,7 +434,7 @@ class MotorHandler:
         Ture, if each alive motor has resonded to their data resquest
         :return:
         """
-        return all([(my_motor.position_available() or not my_motor.alive) for my_motor in self.motor_list])
+        return all([(my_motor.position_available()) for my_motor in self.motor_list if my_motor.alive])
 
     def get_angles(self) -> np.ndarray:
         """
@@ -514,16 +514,21 @@ class MotorHandler:
         request the data writen on the bulkread (does not wait for the response data)
         :return:
         """
+        self.delete_dead_motors()  # because unresponsive motors make the whole read fail
         if not self.motor_list:
             return True
 
-        # self.delete_dead_motors()  # because unresponsive motors make the whole read fail
         dxl_comm_result = self.groupBulkRead.txRxPacket()
         if dxl_comm_result != COMM_SUCCESS:
-            print("Request_update failed")
-            print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
-            for index, my_motor in enumerate(self.motor_list):
-                my_motor.check_motor_alive()
+            print(f"Request_update failed: {self.packetHandler.getTxRxResult(dxl_comm_result)}")
+            motor_died = False
+            for index in range(len(self.motor_list) - 1, -1, -1):
+                my_motor = self.motor_list[index]
+                my_mot_is_ded = not my_motor.check_motor_alive(trial=1)
+                motor_died = motor_died or (my_mot_is_ded)
+            if motor_died:
+                print("Request_update: Recursively retrying ")
+                return self.request_update()
             return False
         else:
             return True

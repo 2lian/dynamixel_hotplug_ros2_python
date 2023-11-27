@@ -109,7 +109,7 @@ class U2D2DynaController(Node):
         ############   V ros2 parameters V
         #   \  /   #
         #    \/    #
-        self.declare_parameter('UsbPort', '/dev/ttyUSB0')
+        self.declare_parameter('UsbPort', '/dev/ttyUSB2')
         self.UsbPort = self.get_parameter('UsbPort').get_parameter_value().string_value
 
         self.declare_parameter('PortAlias', f'port_{self.UsbPort[-1]}')
@@ -123,7 +123,7 @@ class U2D2DynaController(Node):
 
         self.declare_parameter('IdRangeMin', 1)
         self.IdRangeMin = self.get_parameter('IdRangeMin').get_parameter_value().integer_value
-        self.declare_parameter('IdRangeMax', 3)
+        self.declare_parameter('IdRangeMax', 10)
         self.IdRangeMax = self.get_parameter('IdRangeMax').get_parameter_value().integer_value
         self.id_range = list(range(self.IdRangeMin, self.IdRangeMax + 1))
 
@@ -315,7 +315,9 @@ class U2D2DynaController(Node):
         Stops the handling of motor that are considered dead by the controller
         :return:
         """
-        disconnected_motors = self.controller.delete_dead_motors()
+        self.controller.delete_dead_motors()
+        alive_id_list = self.controller.get_motor_id_in_order()
+        disconnected_motors = [ID for ID in self.motor_cbk_holder_dict.keys() if ID not in alive_id_list]
         if disconnected_motors:
             self.get_logger().warning(f"Port {self.PortAlias}: Motor {disconnected_motors} lost")
             for motor_id in disconnected_motors:

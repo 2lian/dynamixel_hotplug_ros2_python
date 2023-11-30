@@ -49,10 +49,10 @@ class MotorCallbackHolder:
         self.MotorHandler = MotorHandler
         self.parent_node = parent_node
 
-        self.sub = self.parent_node.create_subscription(AngleTime,
+        self.subscriber = self.parent_node.create_subscription(AngleTime,
                                                         f"set_{self.parent_node.PortAlias}_mot_{self.motor_number}",
                                                         self.angle_time_cbk, 1, callback_group=ReentrantCallbackGroup())
-        self.pub = self.parent_node.create_publisher(Float64,
+        self.publisher = self.parent_node.create_publisher(Float64,
                                                      f"angle_{self.parent_node.PortAlias}_mot_{self.motor_number}",
                                                      10, callback_group=ReentrantCallbackGroup())
         self.new_target_available = False
@@ -95,7 +95,7 @@ class MotorCallbackHolder:
             return
         msg = Float64()
         msg.data = angle
-        self.pub.publish(msg)
+        self.publisher.publish(msg)
 
 
 class U2D2DynaController(Node):

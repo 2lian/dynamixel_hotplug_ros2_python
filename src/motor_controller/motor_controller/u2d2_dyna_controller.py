@@ -282,8 +282,8 @@ class U2D2DynaController(Node):
         :param motor_id:
         :return:
         """
-        self.destroy_subscription(self.motor_cbk_holder_dict[motor_id].sub)
-        self.destroy_publisher(self.motor_cbk_holder_dict[motor_id].pub)
+        self.destroy_subscription(self.motor_cbk_holder_dict[motor_id].subscriber)
+        self.destroy_publisher(self.motor_cbk_holder_dict[motor_id].publisher)
         del self.motor_cbk_holder_dict[motor_id]
 
     @error_catcher

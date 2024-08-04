@@ -2,7 +2,8 @@
 # run this inside this folder
 cd "${ROS2_DYNA_WS}" || exit
 . "${ROS2_INSTALL_PATH}"/setup.bash
-colcon build --symlink-install --packages-select motor_controller
+# colcon build --symlink-install
+colcon build
 . install/setup.bash
 export RCUTILS_CONSOLE_OUTPUT_FORMAT="{message}"
 export RCUTILS_COLORIZED_OUTPUT=1

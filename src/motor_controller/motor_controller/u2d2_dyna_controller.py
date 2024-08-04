@@ -20,6 +20,7 @@ from dyna_controller_messages.msg import AngleTime
 import python_package_include.multi_controller as my_controller
 import serial
 import termios
+import time # Only use time when the ros2 clock is not usuable
 
 
 def error_catcher(func):
@@ -32,7 +33,7 @@ def error_catcher(func):
             if exception is KeyboardInterrupt:
                 raise exception
             else:
-                traceback_logger_node = Node('node_class_traceback_logger')
+                traceback_logger_node = Node("node_class_traceback_logger")
                 traceback_logger_node.get_logger().error(traceback.format_exc())
                 raise exception
         return out
@@ -44,17 +45,25 @@ class MotorCallbackHolder:
     """
     Represents a single motor and its corresponding callbacks
     """
-    def __init__(self, motor_number: int,  MotorHandler, parent_node):
+
+    def __init__(self, motor_number: int, MotorHandler, parent_node):
         self.motor_number = motor_number
         self.MotorHandler = MotorHandler
         self.parent_node = parent_node
 
-        self.subscriber = self.parent_node.create_subscription(AngleTime,
-                                                        f"set_{self.parent_node.PortAlias}_mot_{self.motor_number}",
-                                                        self.angle_time_cbk, 1, callback_group=ReentrantCallbackGroup())
-        self.publisher = self.parent_node.create_publisher(Float64,
-                                                     f"angle_{self.parent_node.PortAlias}_mot_{self.motor_number}",
-                                                     10, callback_group=ReentrantCallbackGroup())
+        self.subscriber = self.parent_node.create_subscription(
+            AngleTime,
+            f"set_{self.parent_node.PortAlias}_mot_{self.motor_number}",
+            self.angle_time_cbk,
+            1,
+            callback_group=ReentrantCallbackGroup(),
+        )
+        self.publisher = self.parent_node.create_publisher(
+            Float64,
+            f"angle_{self.parent_node.PortAlias}_mot_{self.motor_number}",
+            10,
+            callback_group=ReentrantCallbackGroup(),
+        )
         self.new_target_available = False
         self.target_angle = None
         self.target_time = None
@@ -90,8 +99,10 @@ class MotorCallbackHolder:
         """
         angle = self.current_angle
         if np.isnan(angle):
-            self.parent_node.get_logger().warning(f"Port {self.parent_node.PortAlias} Motor {self.motor_number}: "
-                                                  f"Invalid angle (not published)")
+            self.parent_node.get_logger().warning(
+                f"Port {self.parent_node.PortAlias} Motor {self.motor_number}: "
+                f"Invalid angle (not published)"
+            )
             return
         msg = Float64()
         msg.data = angle
@@ -104,37 +115,53 @@ class U2D2DynaController(Node):
     """
 
     def __init__(self):
-        super().__init__(f'U2D2DynaController')
+        super().__init__(f"U2D2DynaController")
 
         ############   V ros2 parameters V
         #   \  /   #
         #    \/    #
-        self.declare_parameter('UsbPort', '/dev/ttyUSB2')
-        self.UsbPort = self.get_parameter('UsbPort').get_parameter_value().string_value
+        self.declare_parameter("UsbPort", "/dev/ttyUSB2")
+        self.UsbPort = self.get_parameter("UsbPort").get_parameter_value().string_value
 
-        self.declare_parameter('PortAlias', f'port_{self.UsbPort[-1]}')
-        self.PortAlias = self.get_parameter('PortAlias').get_parameter_value().string_value
+        self.declare_parameter("PortAlias", f"port_{self.UsbPort[-1]}")
+        self.PortAlias = (
+            self.get_parameter("PortAlias").get_parameter_value().string_value
+        )
 
-        self.declare_parameter('Baudrate', 4_000_000)
-        self.BAUDRATE = self.get_parameter('Baudrate').get_parameter_value().integer_value
+        self.declare_parameter("Baudrate", 4_000_000)
+        self.BAUDRATE = self.get_parameter("Baudrate").get_parameter_value().integer_value
 
-        self.declare_parameter('MotorSeries', "X_SERIES")
-        self.MotorSeries = self.get_parameter('MotorSeries').get_parameter_value().string_value
+        self.declare_parameter("MotorSeries", "X_SERIES")
+        self.MotorSeries = (
+            self.get_parameter("MotorSeries").get_parameter_value().string_value
+        )
 
-        self.declare_parameter('IdRangeMin', 1)
-        self.IdRangeMin = self.get_parameter('IdRangeMin').get_parameter_value().integer_value
-        self.declare_parameter('IdRangeMax', 10)
-        self.IdRangeMax = self.get_parameter('IdRangeMax').get_parameter_value().integer_value
+        self.declare_parameter("IdRangeMin", 1)
+        self.IdRangeMin = (
+            self.get_parameter("IdRangeMin").get_parameter_value().integer_value
+        )
+        self.declare_parameter("IdRangeMax", 10)
+        self.IdRangeMax = (
+            self.get_parameter("IdRangeMax").get_parameter_value().integer_value
+        )
         self.id_range = list(range(self.IdRangeMin, self.IdRangeMax + 1))
 
-        self.declare_parameter('FullScanPeriod', 2.0)
-        self.FullScanPeriod = self.get_parameter('FullScanPeriod').get_parameter_value().double_value
-        self.declare_parameter('CleanupPeriod', 2.0)
-        self.CleanupPeriod = self.get_parameter('CleanupPeriod').get_parameter_value().double_value
-        self.declare_parameter('AngleReadFreq', 10.0)
-        self.AngleReadFreq = self.get_parameter('AngleReadFreq').get_parameter_value().double_value
-        self.declare_parameter('AngleWriteFreq', 100.0)
-        self.AngleWriteFreq = self.get_parameter('AngleWriteFreq').get_parameter_value().double_value
+        self.declare_parameter("FullScanPeriod", 2.0)
+        self.FullScanPeriod = (
+            self.get_parameter("FullScanPeriod").get_parameter_value().double_value
+        )
+        self.declare_parameter("CleanupPeriod", 2.0)
+        self.CleanupPeriod = (
+            self.get_parameter("CleanupPeriod").get_parameter_value().double_value
+        )
+        self.declare_parameter("AngleReadFreq", 10.0)
+        self.AngleReadFreq = (
+            self.get_parameter("AngleReadFreq").get_parameter_value().double_value
+        )
+        self.declare_parameter("AngleWriteFreq", 100.0)
+        self.AngleWriteFreq = (
+            self.get_parameter("AngleWriteFreq").get_parameter_value().double_value
+        )
 
         #    /\    #
         #   /  \   #
@@ -144,7 +171,7 @@ class U2D2DynaController(Node):
         # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
         self.DEVICENAME = self.UsbPort
 
-        self.PROTOCOL_VERSION = 2.0
+        self.PROTOCOL_VERSION: str = "2.00"
 
         # Will be defined when connecting
         self.controller = None
@@ -160,23 +187,34 @@ class U2D2DynaController(Node):
         ############   V Service V
         #   \  /   #
         #    \/    #
-        self.iAmAlive = self.create_service(Empty, f'usb_{self.PortAlias}_alive', lambda: None)
+        self.iAmAlive = self.create_service(
+            Empty, f"usb_{self.PortAlias}_alive", lambda: None
+        )
         #    /\    #
         #   /  \   #
         ############   ^ Service ^
         grp1 = MutuallyExclusiveCallbackGroup()
 
-        time_to_search_all_id = self.FullScanPeriod  # will loop over all searched motor id in this specified time in seconds
+        time_to_search_all_id = (
+            self.FullScanPeriod
+        )  # will loop over all searched motor id in this specified time in seconds
         search_delta_t = time_to_search_all_id / len(self.id_range)
 
         ############   V Timers V
         #   \  /   #
         #    \/    #
-        self.search_timer = self.create_timer(search_delta_t, self.search_for_next_motor, callback_group=grp1)
-        self.delete_the_dead_timer = self.create_timer(self.CleanupPeriod, self.clean_dead_motors, callback_group=grp1)
-        self.refresh_and_publish_angle_timer = self.create_timer(1/self.AngleReadFreq, self.refresh_and_publish_angles,
-                                                                 callback_group=grp1)
-        self.send_writen_angles_timer = self.create_timer(1/self.AngleWriteFreq, self.send_writen_angles, callback_group=grp1)
+        self.search_timer = self.create_timer(
+            search_delta_t, self.search_for_next_motor, callback_group=grp1
+        )
+        self.delete_the_dead_timer = self.create_timer(
+            self.CleanupPeriod, self.clean_dead_motors, callback_group=grp1
+        )
+        self.refresh_and_publish_angle_timer = self.create_timer(
+            1 / self.AngleReadFreq, self.refresh_and_publish_angles, callback_group=grp1
+        )
+        self.send_writen_angles_timer = self.create_timer(
+            1 / self.AngleWriteFreq, self.send_writen_angles, callback_group=grp1
+        )
         #    /\    #
         #   /  \   #
         ############   ^ Timers ^
@@ -204,7 +242,9 @@ class U2D2DynaController(Node):
 
                 target_angle = corresponding_cbk_holder.target_angle
                 delta_time = corresponding_cbk_holder.target_time
-                delta_time = np.clip(delta_time, a_min=0.0001, a_max=None)  # avoid division by zero and negative values
+                delta_time = np.clip(
+                    delta_time, a_min=0.0001, a_max=None
+                )  # avoid division by zero and negative values
                 current_pos = corresponding_cbk_holder.last_valid_angle
 
                 speed = abs((target_angle - current_pos) / delta_time)
@@ -246,7 +286,9 @@ class U2D2DynaController(Node):
                 else:  # List empty: so it terminates once a ping is unsuccessful
                     break
         if id_found_list:  # if one motor in the list, we log
-            self.get_logger().warning(f"Port {self.PortAlias}: Motor {id_found_list} found :)")
+            self.get_logger().warning(
+                f"Port {self.PortAlias}: Motor {id_found_list} found :)"
+            )
         return
 
     @error_catcher
@@ -270,10 +312,11 @@ class U2D2DynaController(Node):
         :param motor_id:
         :return:
         """
-        self.motor_cbk_holder_dict[motor_id] = MotorCallbackHolder(motor_number=motor_id,
-                                                                   MotorHandler=self.controller,
-                                                                   parent_node=self,
-                                                                   )
+        self.motor_cbk_holder_dict[motor_id] = MotorCallbackHolder(
+            motor_number=motor_id,
+            MotorHandler=self.controller,
+            parent_node=self,
+        )
 
     @error_catcher
     def delete_motor(self, motor_id):
@@ -317,9 +360,13 @@ class U2D2DynaController(Node):
         """
         self.controller.delete_dead_motors()
         alive_id_list = self.controller.get_motor_id_in_order()
-        disconnected_motors = [ID for ID in self.motor_cbk_holder_dict.keys() if ID not in alive_id_list]
+        disconnected_motors = [
+            ID for ID in self.motor_cbk_holder_dict.keys() if ID not in alive_id_list
+        ]
         if disconnected_motors:
-            self.get_logger().warning(f"Port {self.PortAlias}: Motor {disconnected_motors} lost")
+            self.get_logger().warning(
+                f"Port {self.PortAlias}: Motor {disconnected_motors} lost"
+            )
             for motor_id in disconnected_motors:
                 self.delete_motor(motor_id)
 
@@ -335,27 +382,39 @@ class U2D2DynaController(Node):
         :return:
         """
 
-        rate = self.create_rate(1)
+        # rate = self.create_rate(1)
+        rate = 1
 
         if delete_controller:
             del self.controller
         self.portHandler = my_controller.PortHandler(self.DEVICENAME)
         self.packetHandler = my_controller.PacketHandler(self.PROTOCOL_VERSION)
-        self.groupBulkRead = my_controller.GroupBulkRead(self.portHandler, self.packetHandler)
-        self.groupBulkWrite = my_controller.GroupBulkWrite(self.portHandler, self.packetHandler)
+        self.groupBulkRead = my_controller.GroupBulkRead(
+            self.portHandler, self.packetHandler
+        )
+        self.groupBulkWrite = my_controller.GroupBulkWrite(
+            self.portHandler, self.packetHandler
+        )
 
         while 1:  # Open port
             opened = False
             try:
                 opened = self.portHandler.openPort()
             except serial.serialutil.SerialException as e:
-                self.get_logger().warning(f'Port {self.PortAlias}: Serial error on opening, port may not exist')
+                if e.errno == 2:
+                    self.get_logger().warning(
+                            f"Port {self.PortAlias} [path: {self.DEVICENAME}, proto: {self.PROTOCOL_VERSION}]: Serial error 2 on opening, port/path may not exist"
+                    , once = True)
+                else:
+                    raise e
             if opened:
                 self.get_logger().info(f"Port {self.PortAlias}: opened :)")
                 break
             else:
-                self.get_logger().warning(f"Port {self.PortAlias}: failed to open", once=True)
-            rate.sleep()
+                self.get_logger().warning(
+                    f"Port {self.PortAlias}: failed to open. Retrying every {rate} s.", once=True
+                )
+            time.sleep(rate)
 
         while 1:  # Set port baudrate
             if self.portHandler.setBaudRate(self.BAUDRATE):
@@ -363,20 +422,28 @@ class U2D2DynaController(Node):
                 break
             else:
                 self.get_logger().warning("Failed to change the baudrate", once=True)
-            rate.sleep()
+            time.sleep(rate)
 
-        self.controller = my_controller.MotorHandler(packetHandler=self.packetHandler,
-                                                     portHandler=self.portHandler,
-                                                     groupBulkRead=self.groupBulkRead,
-                                                     groupBulkWrite=self.groupBulkWrite,
-                                                     deviceName=self.DEVICENAME,
-                                                     motor_series=self.MotorSeries)
+        self.controller = my_controller.MotorHandler(
+            packetHandler=self.packetHandler,
+            portHandler=self.portHandler,
+            groupBulkRead=self.groupBulkRead,
+            groupBulkWrite=self.groupBulkWrite,
+            deviceName=self.DEVICENAME,
+            motor_series=self.MotorSeries,
+        )
 
         motor_found = self.search_motors(self.id_range)
         if motor_found:
-            self.get_logger().warning(f"Port {self.PortAlias}: Motor {motor_found} found :)")
+            self.get_logger().warning(
+                f"Port {self.PortAlias}: Motor {motor_found} found :)"
+            )
         else:
-            self.get_logger().warning(f"Port {self.PortAlias}: NO MOTOR, but setup successful :)")
+            self.get_logger().warning(
+                f"Port {self.PortAlias}: NO MOTOR, but setup successful :)"
+            )
+
+        # self.destroy_rate(rate)
 
 
 def main(args=None):
@@ -394,23 +461,23 @@ def main(args=None):
             already_setup = True
             executor.spin()
         except KeyboardInterrupt as e:
-            node.get_logger().info('KeyboardInterrupt, shutting down, bye bye <3')
+            node.get_logger().info("KeyboardInterrupt, shutting down, bye bye <3")
             break
         except serial.serialutil.SerialException as e:
-            node.get_logger().error('Serial error occurred')
+            node.get_logger().error("Serial error occurred")
             node.portHandler.closePort()
-            node.get_logger().info('Port closed and restarting in 5s')
+            node.get_logger().info("Port closed and restarting in 5s")
             time.sleep(5)
-            node.get_logger().info('restarting')
+            node.get_logger().info("restarting")
         except termios.error as e:
-            node.get_logger().error('Termios error occurred')
+            node.get_logger().error("Termios error occurred")
             node.portHandler.closePort()
-            node.get_logger().info('Port closed and restarting in 5s')
+            node.get_logger().info("Port closed and restarting in 5s")
             time.sleep(5)
-            node.get_logger().info('restarting')
+            node.get_logger().info("restarting")
     node.destroy_node()
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

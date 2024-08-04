@@ -28,13 +28,18 @@ included inside this repo.
 Python dependencies:
 ```bash
 python3 -m pip install numpy
-python3 -m pip install serial
+python3 -m pip install pyserial
 ```
 
 Clone this repo and open it with:
 ```bash
 git clone https://github.com/hubble14567/dynamixel_hotplug_ros2_python
 cd dynamixel_hotplug_ros2_python
+```
+
+Give your user permission on the tty USB ports:
+```bash
+sudo adduser $USER dialout
 ```
 
 Source ros2, build, and source the workspace with:

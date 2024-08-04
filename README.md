@@ -20,7 +20,7 @@ Therefor modifications, additions and debugging are easy; and close to the seria
 
 ## Software
 
-Ros2 needs to be installed and working, this was made using Ros2 Foxy but should work with newer versions [(installation of Foxy)](https://docs.ros.org/en/foxy/Installation.html).
+Ros2 needs to be installed and working, this was made using Ros2 Foxy, and has been tested to work on Humble [(installation of Humble)](https://docs.ros.org/en/humble/Installation.html).
 
 The Python [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/) is already
 included inside this repo.

@@ -98,6 +98,15 @@ class MotorCallbackHolder:
         :return:
         """
         angle = self.current_angle
+        if angle is None:
+            return
+
+        if not type(angle) in [int, float, np.float64, np.float32]:
+            self.parent_node.get_logger().warning(
+                f"Port {self.parent_node.PortAlias} Motor {self.motor_number}: "
+                f"Invalid angle (not published)"
+            )
+            return
         if np.isnan(angle):
             self.parent_node.get_logger().warning(
                 f"Port {self.parent_node.PortAlias} Motor {self.motor_number}: "
@@ -382,7 +391,6 @@ class U2D2DynaController(Node):
         :return:
         """
 
-        # rate = self.create_rate(1)
         rate = 1
 
         if delete_controller:
@@ -442,9 +450,6 @@ class U2D2DynaController(Node):
             self.get_logger().warning(
                 f"Port {self.PortAlias}: NO MOTOR, but setup successful :)"
             )
-
-        # self.destroy_rate(rate)
-
 
 def main(args=None):
     rclpy.init()

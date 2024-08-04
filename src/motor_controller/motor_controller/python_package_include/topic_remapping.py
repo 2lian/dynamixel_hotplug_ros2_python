@@ -51,7 +51,7 @@ set_map = {
 gain_map = {
     f"ang_joint{1}_{1}_set": -1,
     f"ang_joint{1}_{2}_set": -1,
-    f"ang_joint{1}_{3}_set": -1,
+    f"ang_joint{1}_{3}_set": 1,
 
     f"ang_joint{2}_{1}_set": -1,
     f"ang_joint{2}_{2}_set": -1,

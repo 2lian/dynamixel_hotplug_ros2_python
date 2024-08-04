@@ -17,11 +17,8 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallb
 
 from dyna_controller_messages.msg import AngleTime
 
-import python_package_include.topic_remapping as my_mapping
-
-angle_mapping = my_mapping.angle_map
-set_mapping = my_mapping.set_map
-
+# import python_package_include.topic_remapping as my_mapping
+from python_package_include.topic_remapping import *
 
 def error_catcher(func):
     # This is a wrapper to catch and display exceptions
@@ -35,7 +32,7 @@ def error_catcher(func):
             if exception is KeyboardInterrupt:
                 raise exception
             else:
-                traceback_logger_node = Node('node_class_traceback_logger')
+                traceback_logger_node = Node("node_class_traceback_logger")
                 traceback_logger_node.get_logger().error(traceback.format_exc())
                 raise exception
         return out
@@ -44,54 +41,64 @@ def error_catcher(func):
 
 
 class JointCallbackHolder:
-    def __init__(self, higher_level_sub_name, higher_level_pub_name, delta_time, parent_node):
+    def __init__(
+        self, higher_level_sub_name, higher_level_pub_name, delta_time, parent_node
+    ):
         self.parent_node = parent_node
         self.cbkgrp = ReentrantCallbackGroup()
         self.delta_time = delta_time
+        self.gain = gain_map[higher_level_sub_name]
 
-        self.highlevel_sub = self.parent_node.create_subscription(Float64,
-                                                                  higher_level_sub_name,
-                                                                  self.from_highlevel_to_dyna,
-                                                                  10,
-                                                                  callback_group=self.cbkgrp)
-        self.to_dyna_pub = self.parent_node.create_publisher(AngleTime, set_mapping[higher_level_sub_name],
-                                                             10,
-                                                             callback_group=self.cbkgrp)
+        self.highlevel_sub = self.parent_node.create_subscription(
+            Float64,
+            higher_level_sub_name,
+            self.from_highlevel_to_dyna,
+            10,
+            callback_group=self.cbkgrp,
+        )
+        self.to_dyna_pub = self.parent_node.create_publisher(
+            AngleTime, set_map[higher_level_sub_name], 10, callback_group=self.cbkgrp
+        )
 
-        self.dyna_sub = self.parent_node.create_subscription(Float64, angle_mapping[higher_level_pub_name],
-                                                             self.from_dyna_to_highlevel,
-                                                             10,
-                                                             callback_group=self.cbkgrp)
-        self.to_highlevel_pub = self.parent_node.create_publisher(Float64, higher_level_pub_name,
-                                                                  10,
-                                                                  callback_group=self.cbkgrp)
+        self.dyna_sub = self.parent_node.create_subscription(
+            Float64,
+            angle_map[higher_level_pub_name],
+            self.from_dyna_to_highlevel,
+            10,
+            callback_group=self.cbkgrp,
+        )
+        self.to_highlevel_pub = self.parent_node.create_publisher(
+            Float64, higher_level_pub_name, 10, callback_group=self.cbkgrp
+        )
 
     @error_catcher
     def from_highlevel_to_dyna(self, msg):
         new_msg = AngleTime()
-        new_msg.angle = msg.data
+        new_msg.angle = msg.data * self.gain
         new_msg.seconds = self.delta_time
         self.to_dyna_pub.publish(new_msg)
 
     @error_catcher
     def from_dyna_to_highlevel(self, msg):
         new_msg = Float64()
-        new_msg.data = msg.data
+        new_msg.data = msg.data * self.gain
         self.to_highlevel_pub.publish(new_msg)
 
 
 class AngleRemapper(Node):
 
     def __init__(self):
-        super().__init__(f'AngleRemapper')
+        super().__init__(f"AngleRemapper")
 
         cbk_hldr_list = []
 
         ############   V ros2 parameters V
         #   \  /   #
         #    \/    #
-        self.declare_parameter('TimeToReach', 1/20 + 0.1)
-        self.TimeToReach = self.get_parameter('TimeToReach').get_parameter_value().double_value
+        self.declare_parameter("TimeToReach", 1 / 20 + 0.1)
+        self.TimeToReach = (
+            self.get_parameter("TimeToReach").get_parameter_value().double_value
+        )
         #    /\    #
         #   /  \   #
         ############   ^ ros2 parameters ^
@@ -99,11 +106,13 @@ class AngleRemapper(Node):
         ############   V CallbackHolder V
         #   \  /   #
         #    \/    #
-        for k in range(len(angle_mapping)):
-            higher_level_sub_name = list(set_mapping.keys())[k]
-            higher_level_pub_name = list(angle_mapping.keys())[k]
+        for k in range(len(angle_map)):
+            higher_level_sub_name = list(set_map.keys())[k]
+            higher_level_pub_name = list(angle_map.keys())[k]
             cbk_hldr_list.append(
-                JointCallbackHolder(higher_level_sub_name, higher_level_pub_name, self.TimeToReach, self)
+                JointCallbackHolder(
+                    higher_level_sub_name, higher_level_pub_name, self.TimeToReach, self
+                )
             )
         #    /\    #
         #   /  \   #
@@ -112,7 +121,7 @@ class AngleRemapper(Node):
         ############   V Service V
         #   \  /   #
         #    \/    #
-        self.iAmAlive = self.create_service(Empty, f'remapper_alive', lambda: None)
+        self.iAmAlive = self.create_service(Empty, f"remapper_alive", lambda: None)
         #    /\    #
         #   /  \   #
         ############   ^ Service ^
@@ -128,11 +137,11 @@ def main(args=None):
     try:
         executor.spin()
     except KeyboardInterrupt as e:
-        node.get_logger().info('KeyboardInterrupt, shutting down, bye bye <3')
+        node.get_logger().info("KeyboardInterrupt, shutting down, bye bye <3")
 
     node.destroy_node()
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

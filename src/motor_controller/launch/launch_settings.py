@@ -55,6 +55,6 @@ AngleReadFreq = 10  # Hz
 AngleWriteFreq = 40  # Hz
 # Freq at which the bulkwrite will send all new targets in the buffer to the motors
 
-TimeToReach = 1 / 20 + 0.1  # s
+TimeToReach = 1 / 5 + 0.1  # s
 # The mapper will consider that all target should be reached by this time
 # if you send new targets at 20Hz, 1/20 + 0.1 gives good results

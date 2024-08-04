@@ -10,40 +10,58 @@ Gives dictionary specifying how to link topics together
 
 # Higher level pub  : Subscriber to the u2d2_dyna_controller
 angle_map = {
-    f"angle_{0}_{0}": f"angle_port_{2}_mot_{1}",
-    f"angle_{0}_{1}": f"angle_port_{2}_mot_{2}",
-    f"angle_{0}_{2}": f"angle_port_{2}_mot_{3}",
-
-    f"angle_{1}_{0}": f"angle_port_{1}_mot_{1}",
-    f"angle_{1}_{1}": f"angle_port_{1}_mot_{2}",
-    f"angle_{1}_{2}": f"angle_port_{1}_mot_{3}",
-
-    f"angle_{2}_{0}": f"angle_port_{0}_mot_{1}",
-    f"angle_{2}_{1}": f"angle_port_{0}_mot_{2}",
-    f"angle_{2}_{2}": f"angle_port_{0}_mot_{3}",
-
-    f"angle_{3}_{0}": f"angle_port_{3}_mot_{1}",
-    f"angle_{3}_{1}": f"angle_port_{3}_mot_{2}",
-    f"angle_{3}_{2}": f"angle_port_{3}_mot_{3}",
+    f"read_joint{1}_{1}": f"angle_port_{2}_mot_{1}",
+    f"read_joint{1}_{2}": f"angle_port_{2}_mot_{2}",
+    f"read_joint{1}_{3}": f"angle_port_{2}_mot_{3}",
+                                         
+    f"read_joint{2}_{1}": f"angle_port_{0}_mot_{1}",
+    f"read_joint{2}_{2}": f"angle_port_{0}_mot_{2}",
+    f"read_joint{2}_{3}": f"angle_port_{0}_mot_{3}",
+                                         
+    f"read_joint{3}_{1}": f"angle_port_{3}_mot_{1}",
+    f"read_joint{3}_{2}": f"angle_port_{3}_mot_{2}",
+    f"read_joint{3}_{3}": f"angle_port_{3}_mot_{3}",
+                                         
+    f"read_joint{4}_{1}": f"angle_port_{1}_mot_{1}",
+    f"read_joint{4}_{2}": f"angle_port_{1}_mot_{2}",
+    f"read_joint{4}_{3}": f"angle_port_{1}_mot_{3}",
 
 }
 
 # Higher level sub  : Publisher to the u2d2_dyna_controller
 set_map = {
-    f"set_joint_{0}_{0}_real": f"set_port_{2}_mot_{1}",
-    f"set_joint_{0}_{1}_real": f"set_port_{2}_mot_{2}",
-    f"set_joint_{0}_{2}_real": f"set_port_{2}_mot_{3}",
+    f"ang_joint{1}_{1}_set": f"set_port_{2}_mot_{1}",
+    f"ang_joint{1}_{2}_set": f"set_port_{2}_mot_{2}",
+    f"ang_joint{1}_{3}_set": f"set_port_{2}_mot_{3}",
+                                          
+    f"ang_joint{2}_{1}_set": f"set_port_{0}_mot_{1}",
+    f"ang_joint{2}_{2}_set": f"set_port_{0}_mot_{2}",
+    f"ang_joint{2}_{3}_set": f"set_port_{0}_mot_{3}",
+                                          
+    f"ang_joint{3}_{1}_set": f"set_port_{3}_mot_{1}",
+    f"ang_joint{3}_{2}_set": f"set_port_{3}_mot_{2}",
+    f"ang_joint{3}_{3}_set": f"set_port_{3}_mot_{3}",
+                                          
+    f"ang_joint{4}_{1}_set": f"set_port_{1}_mot_{1}",
+    f"ang_joint{4}_{2}_set": f"set_port_{1}_mot_{2}",
+    f"ang_joint{4}_{3}_set": f"set_port_{1}_mot_{3}",
+}
 
-    f"set_joint_{1}_{0}_real": f"set_port_{1}_mot_{1}",
-    f"set_joint_{1}_{1}_real": f"set_port_{1}_mot_{2}",
-    f"set_joint_{1}_{2}_real": f"set_port_{1}_mot_{3}",
+# Higher level sub  : Publisher to the u2d2_dyna_controller
+gain_map = {
+    f"ang_joint{1}_{1}_set": -1,
+    f"ang_joint{1}_{2}_set": -1,
+    f"ang_joint{1}_{3}_set": -1,
 
-    f"set_joint_{2}_{0}_real": f"set_port_{0}_mot_{1}",
-    f"set_joint_{2}_{1}_real": f"set_port_{0}_mot_{2}",
-    f"set_joint_{2}_{2}_real": f"set_port_{0}_mot_{3}",
+    f"ang_joint{2}_{1}_set": -1,
+    f"ang_joint{2}_{2}_set": -1,
+    f"ang_joint{2}_{3}_set": -1,
 
-    f"set_joint_{3}_{0}_real": f"set_port_{3}_mot_{1}",
-    f"set_joint_{3}_{1}_real": f"set_port_{3}_mot_{2}",
-    f"set_joint_{3}_{2}_real": f"set_port_{3}_mot_{3}",
+    f"ang_joint{3}_{1}_set": -1,
+    f"ang_joint{3}_{2}_set": -1,
+    f"ang_joint{3}_{3}_set": -1,
 
+    f"ang_joint{4}_{1}_set": -1,
+    f"ang_joint{4}_{2}_set": -1,
+    f"ang_joint{4}_{3}_set": -1,
 }

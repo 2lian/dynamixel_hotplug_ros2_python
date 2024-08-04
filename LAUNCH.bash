@@ -2,6 +2,9 @@
 # run this inside this folder
 cd "${ROS2_DYNA_WS}" || exit
 . "${ROS2_INSTALL_PATH}"/setup.bash
+rm -rf ./build
+rm -rf ./install
+rm -rf ./log
 # colcon build --symlink-install
 colcon build
 . install/setup.bash

@@ -47,6 +47,9 @@ class JointCallbackHolder:
         self.parent_node = parent_node
         self.cbkgrp = ReentrantCallbackGroup()
         self.delta_time = delta_time
+        self.transform_function = transform_map[higher_level_sub_name]
+        self.untransform_function = untransform_map[higher_level_sub_name]
+        self.offset = offset_map[higher_level_sub_name]
         self.gain = gain_map[higher_level_sub_name]
 
         self.highlevel_sub = self.parent_node.create_subscription(
@@ -74,14 +77,14 @@ class JointCallbackHolder:
     @error_catcher
     def from_highlevel_to_dyna(self, msg):
         new_msg = AngleTime()
-        new_msg.angle = msg.data * self.gain
+        new_msg.angle = (self.transform_function(msg.data) + self.offset) * self.gain
         new_msg.seconds = self.delta_time
         self.to_dyna_pub.publish(new_msg)
 
     @error_catcher
     def from_dyna_to_highlevel(self, msg):
         new_msg = Float64()
-        new_msg.data = msg.data * self.gain
+        new_msg.data = self.untransform_function(msg.data / self.gain - self.offset)
         self.to_highlevel_pub.publish(new_msg)
 
 

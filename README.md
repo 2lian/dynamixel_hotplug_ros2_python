@@ -1,7 +1,7 @@
 # Simple Dynamixel Motor Ros2 package using Python, Hotplug capable
 
 This repo provides python libraries and ros2 nodes to control several dynamixels on several u2d2 interfaces 
-with hotplug capabilities (motor can be (dis)connected at runtime). Commands supported are angular commands with a 
+with hotplug capabilities (motors and usb can be (dis)connected at runtime). Commands supported are angular commands with a 
 deltatime specifying the time the motor will take to reach the targeted angle.
 
 Youtube demo:
@@ -10,25 +10,26 @@ Youtube demo:
 
 # Why ?
 
-This is mainly aimed at student in my/your lab that do not have the time, nor need, to learn the intricacies of Ros2, serial, and C++:
-- Python is easier to understand than the [currently available Ros2 in C++.](https://github.com/dynamixel-community/dynamixel_hardware)
-Therefor modifications, additions and debugging are easy; and close to the serial interface.
-- Only standard subscribers/publishers are needed, no need to learn Ros2's Action to only send an angle.
-- Hotplug capabilities
+Flexibility and reliability:
+- Hotplug capabilities: Unplug usb controler(s)? Cut power to any or all motor(s)? Plug in a new motor or usb controler? Swapping out batteries? Unstable motor power distribution? ... and it just works.
+- Detailed code: Dive into the python code from Ros2 down to the serial communication. Change whatever you need.
+- Remapping: Python setting file to set where your angles go, apply offsets and gain, or any function to the angle input/output.
+
+This is mainly aimed at student in my/your lab that do not have the time, nor need, to learn the intricacies of Ros2, serial, and C++ to reliabily send one angle message.
 
 # Installation
 
 ## Software
 
-Ros2 needs to be installed and working, this was made using Ros2 Foxy, and has been tested to work on Humble [(installation of Humble)](https://docs.ros.org/en/humble/Installation.html).
+Ros2 needs to be installed and working, it has been proven to work on Ros2 Foxy and Humble [(installation of Humble)](https://docs.ros.org/en/humble/Installation.html).
 
 The Python [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/) is already
 included inside this repo.
 
-Python dependencies:
+Python dependencies (`sudo` often required for `pyserial`):
 ```bash
 python3 -m pip install numpy
-python3 -m pip install pyserial
+sudo python3 -m pip install pyserial
 ```
 
 Clone this repo and open it with:
@@ -44,7 +45,7 @@ sudo adduser $USER dialout
 
 Source ros2, build, and source the workspace with:
 ```bash
-source opt/foxy/setup.bash
+source opt/humble/setup.bash
 colcon build --symlink-install
 . install/setup.bash
 ```
@@ -83,10 +84,12 @@ to generate smooth motion)
     - topic: `set_port_X_mot_Y`
     - message: `dyna_controller_messages/msg/AngleTime` (target in rad and time in seconds)
 - `angle_remapper.py`: Maps topics of `u2d2_dyna_controller.py` onto other topics (such as leg 3 joint 0, instead of port 2 motor 5) 
-using only `std_msgs/msg/Float64` for the target angle and a fix time to reach the target.
+using only `std_msgs/msg/Float64` for the target angle and a fix time to reach the target. Also applies offset, gain and shaping function if required. Parameters set in [`topic_remapping.py`](src/motor_controller/motor_controller/python_package_include/topic_remapping.py).
 - `multi_port_launch.py`: Launches several nodes, one node per serial port and the remapper, 
-with the corresponding parameters in `launch_settings.py`.
+with the corresponding parameters from [`launch_settings.py`](src/motor_controller/launch/launch_settings.py).
 - `/dyna_controller_messages`: package containing the custom TimeAngle message (`angle: Float64`, `seconds: Float64`).
+- `LAUNCH.bash`: sources ros, builds the workspace and launches `multi_port_launch.py`.
+- `allzero.bash`: Sends messages to several motor nodes to go to 0 in 5 seconds. Modify and use at your will.
 
 # Setup
 
@@ -106,8 +109,10 @@ Use the Dynamixel Wizard to change it on the motor.
 Two motors CANNOT share the same id on the same controller.
 Use the Dynamixel Wizard to change the ID of the motor.
 
-Other settings in [src/launch/launch_settings.py](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py)
+Other settings in [`launch_settings.py`](https://github.com/hubble14567/dynamixel_with_ros2/blob/60a4ab21f1bc3ffd34d84ef4dbea916901f28f65/src/motor_controller/launch/launch_settings.py)
 should be changed according to your need.
+
+Settings to remap AngleTime topics to simpler Float64, and shape the angle input/output are set in [`topic_remapping.py`](src/motor_controller/motor_controller/python_package_include/topic_remapping.py). You can apply gain, offset, limits by using the input shaping on each different topic.
 
 # Launch and use
 
@@ -117,7 +122,7 @@ cd ~/dynamixel_hotplug_ros2_python
 ```
 source ros2, build, source the workspace
 ```bash
-source opt/foxy/setup.bash
+source opt/humble/setup.bash
 colcon build --symlink-install
 . install/setup.bash
 ```
@@ -138,10 +143,11 @@ this will:
   At 100Hz, it sends the command to the motor to reach the 'angle' in the time 'seconds' by moving at a constant speed.
   - Those subscriber and publishers are created/deleted when a motor is connected/disconnected
 - The node angle_remapper:
-  - Converts topics names according to the table inside `topic_remapping.py`. Modify this file according to your needs.
+  - Converts topics names according to the table inside [`topic_remapping.py`](src/motor_controller/motor_controller/python_package_include/topic_remapping.py). Modify this file according to your needs.
+  - Applies input/output shaping. (offset, gain, limits or more)
   - Only uses standard `Float64` messages.
-  - Subscribes to topics `set_joint_A_B_real` transmitting only angle (as `data: Float64`), then repeats onto `set_port_X_mot_Y` 
-using 'angle' and always the same fix value for 'seconds'.
+  - Subscribes to topics `read_jointX_Y` (`Float64`), then repeats onto `set_port_X_mot_Y` (`AngleTime`)
+with always the same fix value for the time.
 
 Terminal log should indicate which USB port is working and detect motors. 
 Unplugging and plugging motors should also display a message.
@@ -169,12 +175,12 @@ ros2 topic pub /set_port_1_mot_1 dyna_controller_messages/msg/AngleTime "{angle:
 Commands joint 1_0 to go to angle 0 in the time specified in launch setting (default is 0.15s).
 According to the default remapping (topic_remapping.py) joint 1_0 corresponds to port 1 motor 1.
 ````bash
-ros2 topic pub /set_joint_1_0_real std_msgs/msg/Float64 "{data: 0.0}" -1
+ros2 topic pub /set_joint1_1 std_msgs/msg/Float64 "{data: 0.0}" -1
 ````
 
 Current angles of port 1, motor 1 can also be listend to after the remapping
 ````bash
-ros2 topic echo /angle_1_0
+ros2 topic echo /read_joint1_1
 ````
 
 # About

@@ -1,10 +1,11 @@
 #!/bin/bash
-# run this inside this folder
-cd "${ROS2_DYNA_WS}" || exit
-. "${ROS2_INSTALL_PATH}"/setup.bash
-rm -rf ./build
-rm -rf ./install
-rm -rf ./log
+# run this inside the dynamixel_hotplug_ros2_python folder
+set -e -o pipefail
+
+source /opt/ros/humble/setup.bash || source /opt/ros/foxy/setup.bash || echo Ros2 Humble or Foxy not found, skipped
+# rm -rf ./build
+# rm -rf ./install
+# rm -rf ./log
 # colcon build --symlink-install
 colcon build
 . install/setup.bash

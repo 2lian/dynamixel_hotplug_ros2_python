@@ -14,7 +14,7 @@ USB_u2d2_port_to_use = [
         1,
         2,
         3,
-        #4,
+        4,
     ]
 ]
 # Use the actual port assigned to the U2D2.
@@ -49,7 +49,7 @@ IdRangeMax = 3  # included
 FullScanPeriod = 2  # seconds
 # will scan all ids in 2 s
 
-AngleReadFreq = 100  # Hz
+AngleReadFreq = 10  # Hz
 # Freq at which the angles of all connected dynamixel is read and published on ros2
 
 AngleWriteFreq = 100  # Hz

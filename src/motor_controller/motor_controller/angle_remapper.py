@@ -47,8 +47,8 @@ class JointCallbackHolder:
         self.parent_node = parent_node
         self.cbkgrp = ReentrantCallbackGroup()
         self.delta_time = delta_time
-        self.transform_function = transform_map[higher_level_sub_name]
-        self.untransform_function = untransform_map[higher_level_sub_name]
+        self.transform_function = input_shaping_map[higher_level_sub_name]
+        self.untransform_function = output_shaping_map[higher_level_sub_name]
         self.offset = offset_map[higher_level_sub_name]
         self.gain = gain_map[higher_level_sub_name]
 

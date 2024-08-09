@@ -45,7 +45,7 @@ sudo adduser $USER dialout
 
 Source ros2, build, and source the workspace with:
 ```bash
-source opt/humble/setup.bash
+source /opt/ros/humble/setup.bash
 colcon build --symlink-install
 . install/setup.bash
 ```
@@ -122,7 +122,7 @@ cd ~/dynamixel_hotplug_ros2_python
 ```
 source ros2, build, source the workspace
 ```bash
-source opt/humble/setup.bash
+source /opt/ros/humble/setup.bash
 colcon build --symlink-install
 . install/setup.bash
 ```

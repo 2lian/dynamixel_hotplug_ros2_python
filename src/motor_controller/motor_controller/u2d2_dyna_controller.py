@@ -420,7 +420,7 @@ class U2D2DynaController(Node):
                 break
             else:
                 self.get_logger().warning(
-                    f"Port {self.PortAlias}: failed to open. Retrying every {rate} s.", once=True
+                    f"Port {self.PortAlias}: failed to open. Silently retrying every {rate} s.", once=True
                 )
             time.sleep(rate)
 

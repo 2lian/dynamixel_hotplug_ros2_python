@@ -57,6 +57,10 @@ ros2 launch src/motor_controller/launch/multi_port_launch.py
 
 This may detect motors right away
 
+## Assigning fix USB path to controllers
+
+[See here: udev_rules.md](udev_rules.md)
+
 ## Hardware / motors
 
 Ensure that your setup is properly working by trying out the

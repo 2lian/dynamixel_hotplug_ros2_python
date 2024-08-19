@@ -59,7 +59,7 @@ This may detect motors right away
 
 ## Assigning fix USB path to controllers
 
-[See here: udev_rules.md](udev_rules.md)
+[See here: udev_rules_doc.md](udev_rules_doc.md)
 
 ## Hardware / motors
 

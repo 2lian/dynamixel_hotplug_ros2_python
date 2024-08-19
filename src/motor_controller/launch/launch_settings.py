@@ -8,8 +8,8 @@ Motors settings to be used by the launch file
 # Baud-rate and motorID are motor specific, if you want to change it, use the dynamixel wizard
 
 USB_u2d2_port_to_use = [
-    f"/dev/ttyUSB{n}"
-    # f"/dev/ttyUSB_mz{n}" # Use this line for Moonbot Zero
+    # f"/dev/ttyUSB{n}"
+    f"/dev/ttyUSB_mz{n}" # Use this line for Moonbot Zero
     for n in [
         0,
         1,
@@ -22,7 +22,7 @@ USB_u2d2_port_to_use = [
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
 # use `ls /dev/ttyUSB*` to see which ports are active on linux
 # if you have only one u2d2 plugged in, you should see it assigned to `/dev/ttyUSB0` and use `["/dev/ttyUSB{0}"]` here
-# see the doc udev_rules.md to assign a fix path to a physical controller
+# see the doc udev_rules_doc.md to assign a fix path to a physical controller
 
 PortAliasDic = dict(zip(USB_u2d2_port_to_use, [f"port_{n}" for n in [0, 1, 2, 3, 4]]))
 # The alias will replace `f"/dev/ttyUSB{n}"` as the name of the port notably when creating node name and topics

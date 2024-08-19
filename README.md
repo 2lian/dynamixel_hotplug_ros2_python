@@ -26,7 +26,7 @@ Ros2 needs to be installed and working, it has been proven to work on Ros2 Foxy 
 The Python [Dynamixel SDK](https://emanual.robotis.com/docs/en/software/dynamixel/dynamixel_sdk/overview/) is already
 included inside this repo.
 
-Python dependencies (`sudo` often required for `pyserial`):
+Python dependencies (`pyserial` often requires `sudo`):
 ```bash
 python3 -m pip install numpy
 sudo python3 -m pip install pyserial

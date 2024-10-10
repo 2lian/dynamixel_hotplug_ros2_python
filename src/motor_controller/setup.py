@@ -3,7 +3,7 @@ from glob import glob
 from sys import version_info
 
 package_name = "motor_controller"
-python_version = f"{version_info.major}.{version_info.minor}"
+python_version = f"python{version_info.major}.{version_info.minor}"
 
 setup(
     name=package_name,

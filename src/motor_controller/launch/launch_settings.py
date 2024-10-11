@@ -9,7 +9,7 @@ Motors settings to be used by the launch file
 
 USB_u2d2_port_to_use = [
     # f"/dev/ttyUSB{n}"
-    f"/dev/ttyUSB_mz{n}" # Use this line for Moonbot Zero
+    f"/dev/ttyUSB{n}" # Use this line for Moonbot Zero
     for n in [
         0,
         1,
@@ -37,12 +37,12 @@ MotorSeries = "X_SERIES"
 # 'P_SERIES'     # PH54, PH42, PM54
 # 'XL320'        # [WARNING] Operating Voltage : 7.4V
 
-Baudrate = 4_000_000
+Baudrate = 2_000_000
 # Default: 57_600, Pro series default: 1_000_000, Max: 4_000_000
 # if the baudrate is wrong motors won't be detected
 
 IdRangeMin = 1  # included
-IdRangeMax = 3  # included
+IdRangeMax = 10  # included
 # defines the id range of the motors to detect
 # two motors CANNOT share the same id, it WILL bug
 

@@ -21,8 +21,10 @@ The controller object
 
 import os
 import time
+from typing import List, Sequence, Union
 
 import numpy as np
+from numpy.typing import NDArray
 
 from dynamixel_sdk import *  # Uses Dynamixel SDK library
 
@@ -115,13 +117,13 @@ class Motor:
 
     def __init__(
         self,
-        motor_data,
-        packetHandler,
-        portHandler,
-        groupBulkRead,
-        groupBulkWrite,
-        deviceName="/dev/ttyUSB0",
-        motor_series="X_SERIES",
+        motor_data: Union[Sequence, NDArray],
+        packetHandler: Protocol2PacketHandler,
+        portHandler: PortHandler,
+        groupBulkRead: GroupBulkRead,
+        groupBulkWrite: GroupBulkWrite,
+        deviceName: str = "/dev/ttyUSB0",
+        motor_series: str = "X_SERIES",
     ):
         self.id = motor_data[0]
         self.model = motor_data[1]
@@ -181,6 +183,25 @@ class Motor:
             return False
         else:
             return self.check_motor_alive(trial - 1)
+
+    def reboot(self) -> bool:
+        """sends reboot command to motor. This clears emergencies stop.
+        It then pings the motor to check if it's alive.
+
+        Returns:
+            True if reboot communication succesfull and motor alive
+        """
+        dxl_comm_result, dxl_error = self.packetHandler.reboot(self.portHandler, self.id)
+        if dxl_comm_result == COMM_SUCCESS:
+            print(f"Motor {self.id:03d} rebooted :)")
+            return self.check_motor_alive(trial=5)
+        else:
+            print(
+                f"Motor {self.id} FAILED reboot:"
+                f"{self.packetHandler.getRxPacketError(dxl_error)}"
+            )
+            self.check_motor_alive()
+            return False
 
     def enable(self) -> None:
         """
@@ -324,14 +345,14 @@ class MotorHandler:
 
     def __init__(
         self,
-        packetHandler,
-        portHandler,
-        groupBulkRead,
-        groupBulkWrite,
-        deviceName="/dev/ttyUSB0",
-        motor_series="X_SERIES",
+        packetHandler: Protocol2PacketHandler,
+        portHandler: PortHandler,
+        groupBulkRead: GroupBulkRead,
+        groupBulkWrite: GroupBulkWrite,
+        deviceName: str = "/dev/ttyUSB0",
+        motor_series: str = "X_SERIES",
     ):
-        self.motor_list = []
+        self.motor_list: List[Motor] = []
         self.idrange = range(1, 17)
 
         self.packetHandler = packetHandler
@@ -360,7 +381,7 @@ class MotorHandler:
                 motor.subscribe_position()
         return motor_died
 
-    def refresh_motors(self, idrange: list = range(1, 17)) -> list:
+    def refresh_motors(self, idrange: Sequence = range(1, 17)) -> List:
         """
         check if the motors with the provided ids are available
         if yes those motor are added to the list of motors managed by the handler
@@ -404,6 +425,14 @@ class MotorHandler:
         :return: List of motor id handle by this object in the order they will be processed
         """
         return [motor.id for motor in self.motor_list]
+
+    def reboot_all(self) -> List[bool]:
+        """Reboots all motors currently handled. This clears emergencies and such.
+
+        Returns:
+            list of if there was an error or not
+        """
+        return [my_motor.reboot() for my_motor in self.motor_list]
 
     def disable(self):
         """

@@ -6,13 +6,14 @@ Contains one ros2 node responsible for controlling several dynamixels connected 
 """
 
 import time
+from typing import Iterable, Iterator, List, Optional, Sequence, Tuple
 import numpy as np
 import traceback
 
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64
-from std_srvs.srv import Empty
+from std_srvs.srv import Empty, Trigger
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 
 from dyna_controller_messages.msg import AngleTime
@@ -20,7 +21,7 @@ from dyna_controller_messages.msg import AngleTime
 import python_package_include.multi_controller as my_controller
 import serial
 import termios
-import time # Only use time when the ros2 clock is not usuable
+import time  # Only use time when the ros2 clock is not usuable
 
 
 def error_catcher(func):
@@ -183,7 +184,7 @@ class U2D2DynaController(Node):
         self.PROTOCOL_VERSION: str = "2.00"
 
         # Will be defined when connecting
-        self.controller = None
+        self.controller: Optional[my_controller.MotorHandler] = None
         self.groupBulkWrite = None
         self.groupBulkRead = None
         self.packetHandler = None
@@ -196,8 +197,11 @@ class U2D2DynaController(Node):
         ############   V Service V
         #   \  /   #
         #    \/    #
+        self.rebootSRV = self.create_service(
+            Trigger, f"{self.PortAlias}_reboot_all", self.reboot_allSRVCBK
+        )
         self.iAmAlive = self.create_service(
-            Empty, f"usb_{self.PortAlias}_alive", lambda: None
+            Empty, f"usb_{self.PortAlias}_alive", lambda q, r: None
         )
         #    /\    #
         #   /  \   #
@@ -227,6 +231,25 @@ class U2D2DynaController(Node):
         #    /\    #
         #   /  \   #
         ############   ^ Timers ^
+
+    @error_catcher
+    def reboot_allSRVCBK(
+        self, req: Trigger.Request, res: Trigger.Response
+    ) -> Trigger.Response:
+        if self.controller is None:
+            res.success = False
+            res.message = "Controller does not exist"
+            return res
+
+        success_comm = self.controller.reboot_all()
+        res.success = all(success_comm)
+        if not res.success:
+            id_and_success: Iterable[Tuple[int, bool]] = zip(
+                map(lambda M: M.id, self.controller.motor_list), success_comm
+            )
+            res.message = "Communication or reboot of a least one motor failed."
+            f"motor id and com success: {id_and_success}"
+        return res
 
     @error_catcher
     def send_writen_angles(self):
@@ -314,7 +337,6 @@ class U2D2DynaController(Node):
                 self.add_new_motor(motor_id)
         return motor_found
 
-    @error_catcher
     def add_new_motor(self, motor_id):
         """
         Motor with the id will have its callback holder created
@@ -327,7 +349,6 @@ class U2D2DynaController(Node):
             parent_node=self,
         )
 
-    @error_catcher
     def delete_motor(self, motor_id):
         """
         Destroys pub sub and associated cbk holder to the motor id
@@ -411,8 +432,9 @@ class U2D2DynaController(Node):
             except serial.serialutil.SerialException as e:
                 if e.errno == 2:
                     self.get_logger().warning(
-                            f"Port {self.PortAlias} [path: {self.DEVICENAME}, proto: {self.PROTOCOL_VERSION}]: Serial error 2 on opening, port/path may not exist"
-                    , once = True)
+                        f"Port {self.PortAlias} [path: {self.DEVICENAME}, proto: {self.PROTOCOL_VERSION}]: Serial error 2 on opening, port/path may not exist",
+                        once=True,
+                    )
                 else:
                     raise e
             if opened:
@@ -420,7 +442,8 @@ class U2D2DynaController(Node):
                 break
             else:
                 self.get_logger().warning(
-                    f"Port {self.PortAlias}: failed to open. Silently retrying every {rate} s.", once=True
+                    f"Port {self.PortAlias}: failed to open. Silently retrying every {rate} s.",
+                    once=True,
                 )
             time.sleep(rate)
 
@@ -450,6 +473,7 @@ class U2D2DynaController(Node):
             self.get_logger().warning(
                 f"Port {self.PortAlias}: NO MOTOR, but setup successful :)"
             )
+
 
 def main(args=None):
     rclpy.init()

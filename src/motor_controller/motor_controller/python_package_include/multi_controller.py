@@ -125,9 +125,9 @@ class Motor:
         deviceName: str = "/dev/ttyUSB0",
         motor_series: str = "X_SERIES",
     ):
-        self.id = motor_data[0]
-        self.model = motor_data[1]
-        self.firmware = motor_data[2]
+        self.id: int = motor_data[0]
+        self.model: int = motor_data[1]
+        self.firmware: int = motor_data[2]
 
         self.packetHandler = packetHandler
         self.portHandler = portHandler

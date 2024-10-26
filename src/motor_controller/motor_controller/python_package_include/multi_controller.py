@@ -28,7 +28,7 @@ from dynamixel_sdk import *  # Uses Dynamixel SDK library
 
 # ********* DYNAMIXEL Model definition *********
 # ***** (Use only one definition at a time) *****
-MY_DXL = 'X_SERIES'  # X330 (5.0 V recommended), X430, X540, 2X430
+MY_DXL = "X_SERIES"  # X330 (5.0 V recommended), X430, X540, 2X430
 # MY_DXL = 'MX_SERIES'    # MX series with 2.0 firmware update.
 # MY_DXL = 'PRO_SERIES'   # H54, H42, M54, M42, L54, L42
 # MY_DXL = 'PRO_A_SERIES' # PRO series with (A) firmware update.
@@ -37,39 +37,31 @@ MY_DXL = 'X_SERIES'  # X330 (5.0 V recommended), X430, X540, 2X430
 # see https://emanual.robotis.com/docs/en/dxl/x/xm430-w350/#control-table-of-ram-area or equivalent for you motor
 
 motor_address_table = {
-    'X_SERIES': {
+    "X_SERIES": {
         "ADDR_TORQUE_ENABLE": 64,
-
         "ADDR_LED_RED": 65,
         "LEN_LED_RED": 1,
-
         "ADDR_GOAL_POSITION": 116,
         "LEN_GOAL_POSITION": 4,
-
         "ADDR_PRESENT_POSITION": 132,
         "LEN_PRESENT_POSITION": 4,
-
         "ADDR_MAX_VELOCITY": 112,
         "LEN_MAX_VELOCITY": 4,
-
         "DXL_MINIMUM_POSITION_VALUE": 0,
         "DXL_MAXIMUM_POSITION_VALUE": 4095,
-
         # "BAUDRATE": 57600,
         # "BAUDRATE": 1000000,
         "BAUDRATE": 4000000,
-    }
-    ,
-    'MX_SERIES': {
+    },
+    "MX_SERIES": {
         "ADDR_TORQUE_ENABLE": 64,
         "ADDR_GOAL_POSITION": 116,
         "ADDR_PRESENT_POSITION": 132,
         "DXL_MINIMUM_POSITION_VALUE": 0,
         "DXL_MAXIMUM_POSITION_VALUE": 4095,
-        "BAUDRATE": 57600
-    }
-    ,
-    'PRO_SERIES': {
+        "BAUDRATE": 57600,
+    },
+    "PRO_SERIES": {
         "ADDR_TORQUE_ENABLE": 562,
         "ADDR_LED_RED": 563,
         "LEN_LED_RED": 1,
@@ -80,9 +72,8 @@ motor_address_table = {
         "DXL_MINIMUM_POSITION_VALUE": -150000,
         "DXL_MAXIMUM_POSITION_VALUE": 150000,
         "BAUDRATE": 57600,
-    }
-    ,
-    'P_SERIES': {
+    },
+    "P_SERIES": {
         "ADDR_TORQUE_ENABLE": 512,
         "ADDR_LED_RED": 513,
         "LEN_LED_RED": 1,
@@ -93,9 +84,8 @@ motor_address_table = {
         "DXL_MINIMUM_POSITION_VALUE": -150000,
         "DXL_MAXIMUM_POSITION_VALUE": 150000,
         "BAUDRATE": 57600,
-    }
-    ,
-    'PRO_A_SERIES': {
+    },
+    "PRO_A_SERIES": {
         "ADDR_TORQUE_ENABLE": 512,
         "ADDR_LED_RED": 513,
         "LEN_LED_RED": 1,
@@ -106,17 +96,15 @@ motor_address_table = {
         "DXL_MINIMUM_POSITION_VALUE": -150000,
         "DXL_MAXIMUM_POSITION_VALUE": 150000,
         "BAUDRATE": 57600,
-    }
-    ,
-    'XL320': {
+    },
+    "XL320": {
         "ADDR_TORQUE_ENABLE": 24,
         "ADDR_GOAL_POSITION": 30,
         "ADDR_PRESENT_POSITION": 37,
         "DXL_MINIMUM_POSITION_VALUE": 0,
         "DXL_MAXIMUM_POSITION_VALUE": 1023,
-        "BAUDRATE": 1000000
-    }
-    ,
+        "BAUDRATE": 1000000,
+    },
 }
 
 
@@ -125,9 +113,16 @@ class Motor:
     represents and handles a single motor
     """
 
-    def __init__(self, motor_data, packetHandler, portHandler, groupBulkRead, groupBulkWrite,
-                 deviceName='/dev/ttyUSB0',
-                 motor_series="X_SERIES"):
+    def __init__(
+        self,
+        motor_data,
+        packetHandler,
+        portHandler,
+        groupBulkRead,
+        groupBulkWrite,
+        deviceName="/dev/ttyUSB0",
+        motor_series="X_SERIES",
+    ):
         self.id = motor_data[0]
         self.model = motor_data[1]
         self.firmware = motor_data[2]
@@ -151,7 +146,9 @@ class Motor:
         :param radiant: angle in radiant
         :return: corresponding raw value for the motor
         """
-        radiant += np.pi  # 0 is everything pointing sraight, positive and negative angles should be used
+        radiant += (
+            np.pi
+        )  # 0 is everything pointing sraight, positive and negative angles should be used
         raw = self.minraw + (self.maxraw - self.minraw) * (radiant / (2 * np.pi))
         return int(np.clip(raw, self.minraw, self.maxraw))
 
@@ -165,13 +162,21 @@ class Motor:
         :param trial: number of time the motors has been pinged
         :return: True if motor is alive, else False
         """
-        dxl_model_number, dxl_comm_result, dxl_error = self.packetHandler.ping(self.portHandler, self.id)
+        dxl_model_number, dxl_comm_result, dxl_error = self.packetHandler.ping(
+            self.portHandler, self.id
+        )
         if dxl_comm_result == COMM_SUCCESS:
-            print(f"after {trial} attempts ping successful, Motor {self.id:03d} Alive :)")
+            print(
+                f"after {trial} attempts ping successful, "
+                f"Motor {self.id:03d} Alive :)"
+            )
             self.alive = True
             return True
         elif trial <= 1:
-            print(f"Motor {self.id} is dead {self.packetHandler.getRxPacketError(dxl_error)}")
+            print(
+                f"Motor {self.id} is dead "
+                f"{self.packetHandler.getRxPacketError(dxl_error)}"
+            )
             self.alive = False
             return False
         else:
@@ -182,10 +187,9 @@ class Motor:
         Enables torque on the motor (the motor will have power)
         :return:
         """
-        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler,
-                                                                       self.id,
-                                                                       self.addr_table["ADDR_TORQUE_ENABLE"],
-                                                                       1)
+        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(
+            self.portHandler, self.id, self.addr_table["ADDR_TORQUE_ENABLE"], 1
+        )
         if dxl_comm_result != COMM_SUCCESS:
             print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
             self.check_motor_alive()
@@ -200,10 +204,9 @@ class Motor:
         Disable torque on the motor (the motor will power down)
         :return:
         """
-        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(self.portHandler,
-                                                                       self.id,
-                                                                       self.addr_table["ADDR_TORQUE_ENABLE"],
-                                                                       0)
+        dxl_comm_result, dxl_error = self.packetHandler.write1ByteTxRx(
+            self.portHandler, self.id, self.addr_table["ADDR_TORQUE_ENABLE"], 0
+        )
         if dxl_comm_result != COMM_SUCCESS:
             print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
             self.check_motor_alive()
@@ -218,9 +221,11 @@ class Motor:
         The position of the motor will be requested on the bulk read
         :return:
         """
-        dxl_addparam_result = self.groupBulkRead.addParam(self.id,
-                                                          self.addr_table["ADDR_PRESENT_POSITION"],
-                                                          self.addr_table["LEN_PRESENT_POSITION"])
+        dxl_addparam_result = self.groupBulkRead.addParam(
+            self.id,
+            self.addr_table["ADDR_PRESENT_POSITION"],
+            self.addr_table["LEN_PRESENT_POSITION"],
+        )
 
         if dxl_addparam_result != True:
             print(f"[ID:{self.id:03d}] subscribe_position failed\n{dxl_addparam_result}")
@@ -231,9 +236,11 @@ class Motor:
         The position has been returned and the data is available
         :return:
         """
-        result_available = self.groupBulkRead.isAvailable(self.id,
-                                                            self.addr_table["ADDR_PRESENT_POSITION"],
-                                                            self.addr_table["LEN_PRESENT_POSITION"])
+        result_available = self.groupBulkRead.isAvailable(
+            self.id,
+            self.addr_table["ADDR_PRESENT_POSITION"],
+            self.addr_table["LEN_PRESENT_POSITION"],
+        )
         if not result_available:
             print(f"[ID:{self.id:03d}] position_available failed\n{result_available}")
             self.check_motor_alive()
@@ -244,9 +251,11 @@ class Motor:
         Reads the position data received from the bulk read
         :return:
         """
-        motor_raw_data = self.groupBulkRead.getData(self.id,
-                                                    self.addr_table["ADDR_PRESENT_POSITION"],
-                                                    self.addr_table["LEN_PRESENT_POSITION"])
+        motor_raw_data = self.groupBulkRead.getData(
+            self.id,
+            self.addr_table["ADDR_PRESENT_POSITION"],
+            self.addr_table["LEN_PRESENT_POSITION"],
+        )
         if motor_raw_data == 0:  # error when getting the data
             # this 0 comes from the sdk, I don't know if the motor can ever return 0 as a valid position
             return np.nan
@@ -261,15 +270,19 @@ class Motor:
         :return:
         """
         raw = self.rad2raw(angle)
-        param_goal_position = [DXL_LOBYTE(DXL_LOWORD(raw)),
-                               DXL_HIBYTE(DXL_LOWORD(raw)),
-                               DXL_LOBYTE(DXL_HIWORD(raw)),
-                               DXL_HIBYTE(DXL_HIWORD(raw))]
+        param_goal_position = [
+            DXL_LOBYTE(DXL_LOWORD(raw)),
+            DXL_HIBYTE(DXL_LOWORD(raw)),
+            DXL_LOBYTE(DXL_HIWORD(raw)),
+            DXL_HIBYTE(DXL_HIWORD(raw)),
+        ]
 
-        dxl_addparam_result = self.groupBulkWrite.addParam(self.id,
-                                                           self.addr_table["ADDR_GOAL_POSITION"],
-                                                           self.addr_table["LEN_GOAL_POSITION"],
-                                                           param_goal_position)
+        dxl_addparam_result = self.groupBulkWrite.addParam(
+            self.id,
+            self.addr_table["ADDR_GOAL_POSITION"],
+            self.addr_table["LEN_GOAL_POSITION"],
+            param_goal_position,
+        )
         if dxl_addparam_result != True:
             print("[ID:%03d] write_position failed" % self.id)
             self.check_motor_alive()
@@ -286,15 +299,19 @@ class Motor:
         raw = np.clip(int(np.floor(scaled)), self.minraw, self.maxraw)
         # print(raw)
 
-        param_goal_position = [DXL_LOBYTE(DXL_LOWORD(raw)),
-                               DXL_HIBYTE(DXL_LOWORD(raw)),
-                               DXL_LOBYTE(DXL_HIWORD(raw)),
-                               DXL_HIBYTE(DXL_HIWORD(raw))]
+        param_goal_position = [
+            DXL_LOBYTE(DXL_LOWORD(raw)),
+            DXL_HIBYTE(DXL_LOWORD(raw)),
+            DXL_LOBYTE(DXL_HIWORD(raw)),
+            DXL_HIBYTE(DXL_HIWORD(raw)),
+        ]
 
-        dxl_addparam_result = self.groupBulkWrite.addParam(self.id,
-                                                           self.addr_table["ADDR_MAX_VELOCITY"],
-                                                           self.addr_table["LEN_MAX_VELOCITY"],
-                                                           param_goal_position)
+        dxl_addparam_result = self.groupBulkWrite.addParam(
+            self.id,
+            self.addr_table["ADDR_MAX_VELOCITY"],
+            self.addr_table["LEN_MAX_VELOCITY"],
+            param_goal_position,
+        )
         if dxl_addparam_result != True:
             print("[ID:%03d] write_max_speed failed" % self.id)
             self.check_motor_alive()
@@ -305,9 +322,15 @@ class MotorHandler:
     represent and handle several motors connected to the same port
     """
 
-    def __init__(self, packetHandler, portHandler, groupBulkRead, groupBulkWrite,
-                 deviceName='/dev/ttyUSB0',
-                 motor_series="X_SERIES"):
+    def __init__(
+        self,
+        packetHandler,
+        portHandler,
+        groupBulkRead,
+        groupBulkWrite,
+        deviceName="/dev/ttyUSB0",
+        motor_series="X_SERIES",
+    ):
         self.motor_list = []
         self.idrange = range(1, 17)
 
@@ -351,15 +374,22 @@ class MotorHandler:
             if id in already_here_list:
                 id_list.remove(id)
 
-        motor_data_array = search_for_motor(id_list, packetHandler=self.packetHandler, portHandler=self.portHandler)
+        motor_data_array = search_for_motor(
+            id_list, packetHandler=self.packetHandler, portHandler=self.portHandler
+        )
 
-        new_motors = [Motor(motor_data=motor_data_array[row, :],
-                            packetHandler=self.packetHandler,
-                            portHandler=self.portHandler,
-                            groupBulkRead=self.groupBulkRead,
-                            groupBulkWrite=self.groupBulkWrite,
-                            deviceName=self.deviceName,
-                            motor_series=self.motor_series) for row in range(motor_data_array.shape[0])]
+        new_motors = [
+            Motor(
+                motor_data=motor_data_array[row, :],
+                packetHandler=self.packetHandler,
+                portHandler=self.portHandler,
+                groupBulkRead=self.groupBulkRead,
+                groupBulkWrite=self.groupBulkWrite,
+                deviceName=self.deviceName,
+                motor_series=self.motor_series,
+            )
+            for row in range(motor_data_array.shape[0])
+        ]
         if new_motors:
             self.motor_list += new_motors
 
@@ -405,7 +435,9 @@ class MotorHandler:
         :param ang_speed: max speed allowed
         :return: True if success
         """
-        return self.distibute_max_speeds(np.full(len(self.motor_list), ang_speed, dtype=float))
+        return self.distibute_max_speeds(
+            np.full(len(self.motor_list), ang_speed, dtype=float)
+        )
 
     def distibute_targets(self, angle_arr: np.ndarray):
         """
@@ -434,7 +466,13 @@ class MotorHandler:
         Ture, if each alive motor has resonded to their data resquest
         :return:
         """
-        return all([(my_motor.position_available()) for my_motor in self.motor_list if my_motor.alive])
+        return all(
+            [
+                (my_motor.position_available())
+                for my_motor in self.motor_list
+                if my_motor.alive
+            ]
+        )
 
     def get_angles(self) -> np.ndarray:
         """
@@ -447,7 +485,9 @@ class MotorHandler:
             # if not comm_success:  # try twice
             #     break
         if comm_success:
-            return np.array([my_motor.get_position() for my_motor in self.motor_list], dtype=float)
+            return np.array(
+                [my_motor.get_position() for my_motor in self.motor_list], dtype=float
+            )
         else:
             return np.full(len(self.motor_list), np.nan, dtype=float)
 
@@ -460,8 +500,8 @@ class MotorHandler:
         :return: True if success
         """
         return self.to_target_same_time(
-            np.full(len(self.motor_list), angle, dtype=float),
-            delta_time)
+            np.full(len(self.motor_list), angle, dtype=float), delta_time
+        )
 
     def to_target_same_time(self, angle_arr: np.ndarray, delta_time: float) -> bool:
         """
@@ -471,10 +511,14 @@ class MotorHandler:
         :param delta_time: time in sec to reach the target
         :return: True if success
         """
-        delta_time_arr = np.full(shape=angle_arr.shape, fill_value=delta_time, dtype=float)
+        delta_time_arr = np.full(
+            shape=angle_arr.shape, fill_value=delta_time, dtype=float
+        )
         return self.to_target_using_angle_time(angle_arr, delta_time_arr)
 
-    def to_target_using_angle_time(self, angle_arr: np.ndarray, delta_time_arr: np.ndarray) -> bool:
+    def to_target_using_angle_time(
+        self, angle_arr: np.ndarray, delta_time_arr: np.ndarray
+    ) -> bool:
         """
         all motors will reach their target angle in  the corresponding time in the delta_time_arr array
         see, self.get_motor_id_in_order to get the id corresponding to the index
@@ -482,8 +526,9 @@ class MotorHandler:
         :param delta_time_arr: array of time in sec to reach the target
         :return: True if success
         """
-        delta_time_arr_safe = np.clip(delta_time_arr, a_min=0.0001,
-                                      a_max=None)  # avoid division by zero and negative values
+        delta_time_arr_safe = np.clip(
+            delta_time_arr, a_min=0.0001, a_max=None
+        )  # avoid division by zero and negative values
         angle_now = self.get_angles()
         speed = abs((angle_arr - angle_now) / delta_time_arr_safe)
         comm_result = self.distibute_max_speeds(speed)
@@ -520,7 +565,9 @@ class MotorHandler:
 
         dxl_comm_result = self.groupBulkRead.txRxPacket()
         if dxl_comm_result != COMM_SUCCESS:
-            print(f"Request_update failed: {self.packetHandler.getTxRxResult(dxl_comm_result)}")
+            print(
+                f"Request_update failed: {self.packetHandler.getTxRxResult(dxl_comm_result)}"
+            )
             motor_died = False
             for index in range(len(self.motor_list) - 1, -1, -1):
                 my_motor = self.motor_list[index]
@@ -590,7 +637,7 @@ if __name__ == "__main__":
     try:
         # Use the actual port assigned to the U2D2.
         # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
-        DEVICENAME = '/dev/ttyUSB0'
+        DEVICENAME = "/dev/ttyUSB0"
 
         # DYNAMIXEL Protocol Version (1.0 / 2.0)
         # https://emanual.robotis.com/docs/en/dxl/protocol2/
@@ -632,12 +679,14 @@ if __name__ == "__main__":
 
         if 1:  # continously do a sinusoid
 
-            controller = MotorHandler(packetHandler=packetHandler,
-                                      portHandler=portHandler,
-                                      groupBulkRead=groupBulkRead,
-                                      groupBulkWrite=groupBulkWrite,
-                                      deviceName='/dev/ttyUSB0',
-                                      motor_series="X_SERIES")
+            controller = MotorHandler(
+                packetHandler=packetHandler,
+                portHandler=portHandler,
+                groupBulkRead=groupBulkRead,
+                groupBulkWrite=groupBulkWrite,
+                deviceName="/dev/ttyUSB0",
+                motor_series="X_SERIES",
+            )
 
             controller.refresh_motors()
             print(f"number of motors: {len(controller.motor_list)}\n")
@@ -662,12 +711,14 @@ if __name__ == "__main__":
                         time.sleep(dtime - (after - before))
 
         if 0:  # compare set max speed and real speed
-            controller = MotorHandler(packetHandler=packetHandler,
-                                      portHandler=portHandler,
-                                      groupBulkRead=groupBulkRead,
-                                      groupBulkWrite=groupBulkWrite,
-                                      deviceName='/dev/ttyUSB0',
-                                      motor_series="X_SERIES")
+            controller = MotorHandler(
+                packetHandler=packetHandler,
+                portHandler=portHandler,
+                groupBulkRead=groupBulkRead,
+                groupBulkWrite=groupBulkWrite,
+                deviceName="/dev/ttyUSB0",
+                motor_series="X_SERIES",
+            )
 
             controller.refresh_motors()
             print(f"number of motors: {len(controller.motor_list)}\n")
@@ -697,7 +748,9 @@ if __name__ == "__main__":
 
                 real_speed = angle_arr / period
 
-                print(f"target speed = {speed}\nreal speed = {real_speed}\ncorrection factor = {speed / real_speed}")
+                print(
+                    f"target speed = {speed}\nreal speed = {real_speed}\ncorrection factor = {speed / real_speed}"
+                )
     except KeyboardInterrupt:
         pass
     # Disable Dynamixel Torque

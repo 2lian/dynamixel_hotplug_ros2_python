@@ -7,6 +7,8 @@ Gives dictionary specifying how to link topics together and do the input/output 
 @laboratory: Moonshot, Space Robotic Lab, Tohoku University
 """
 
+import numpy as np
+
 
 # {Higher level pub  : Subscriber to the u2d2_dyna_controller}
 angle_map = {
@@ -43,21 +45,18 @@ set_map = {
 # {Higher level sub  : input shaping funciton, applied very first on incoming angles}
 # here I am applying a saturation on the angles
 input_shaping_map = {
-    f"ang_joint{1}_{1}_set": lambda x: min(max(x, -1.6), 1.6),
-    f"ang_joint{1}_{2}_set": lambda x: min(max(x, -1.57), 1.5),
-    f"ang_joint{1}_{3}_set": lambda x: min(max(x, -0.5), 1.9),
-
-    f"ang_joint{2}_{1}_set": lambda x: min(max(x, -1.6), 1.6),
-    f"ang_joint{2}_{2}_set": lambda x: min(max(x, -1.57), 1.5),
-    f"ang_joint{2}_{3}_set": lambda x: min(max(x, -0.5), 1.9),
-
-    f"ang_joint{3}_{1}_set": lambda x: min(max(x, -1.6), 1.6),
-    f"ang_joint{3}_{2}_set": lambda x: min(max(x, -1.57), 1.5),
-    f"ang_joint{3}_{3}_set": lambda x: min(max(x, -0.5), 1.9),
-
-    f"ang_joint{4}_{1}_set": lambda x: min(max(x, -1.6), 1.6),
-    f"ang_joint{4}_{2}_set": lambda x: min(max(x, -1.57), 1.5),
-    f"ang_joint{4}_{3}_set": lambda x: min(max(x, -0.5), 1.9),
+    f"ang_joint{1}_{1}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{1}_{2}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{1}_{3}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{2}_{1}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{2}_{2}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{2}_{3}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{3}_{1}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{3}_{2}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{3}_{3}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{4}_{1}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{4}_{2}_set": lambda x: min(max(x, -np.inf), np.inf),
+    f"ang_joint{4}_{3}_set": lambda x: min(max(x, -np.inf), np.inf),
 }
 
 # {Higher level sub  : Set a offset on the angles (before the gain is applied)}
